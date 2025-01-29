@@ -23,34 +23,20 @@ interface PageProps {
 export const revalidate = 3600 * 2; // Revalidate every 2 hours
 
 export async function generateStaticParams() {
-  const posts = await db.query(
-    "SELECT slug, subdomain FROM blog_posts WHERE is_draft = 0"
-  );
-  return posts.map((post: { slug: string; subdomain: string }) => ({
-    subdomain: post.subdomain,
-    slug: post.slug,
-  }));
+  // This function needs to be updated to work with the new database structure
+  // For now, we'll return an empty array
+  return [];
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { subdomain, slug } = params;
-  console.log("subdomain", subdomain);
-
-  const [blog] = await db.query("SELECT id FROM blogs WHERE subdomain = ?", [
-    subdomain,
-  ]);
-
-  if (!blog) {
-    return {
-      title: "Blog Not Found",
-    };
-  }
 
   const [blogPost] = await db.query(
-    "SELECT * FROM blog_posts WHERE blog_id = ? AND slug = ?",
-    [blog.id, slug]
+    subdomain,
+    "SELECT * FROM blog_posts WHERE slug = ?",
+    [slug]
   );
 
   if (!blogPost || blogPost.is_draft === 1) {
@@ -67,17 +53,11 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { subdomain, slug } = params;
-  const [blog] = await db.query("SELECT id FROM blogs WHERE subdomain = ?", [
-    subdomain,
-  ]);
-
-  if (!blog) {
-    notFound();
-  }
 
   const [blogPost] = await db.query(
-    "SELECT * FROM blog_posts WHERE blog_id = ? AND slug = ?",
-    [blog.id, slug]
+    subdomain,
+    "SELECT * FROM blog_posts WHERE slug = ?",
+    [slug]
   );
 
   if (!blogPost || blogPost.is_draft === 1) {

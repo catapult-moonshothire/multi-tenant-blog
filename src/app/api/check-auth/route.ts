@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function GET() {
   const cookieStore = cookies();
-  const token = (await cookieStore).get("auth_token");
+  const token = cookieStore.get("auth_token");
 
   if (!token) {
     return NextResponse.json({ authenticated: false }, { status: 401 });
@@ -15,12 +15,12 @@ export async function GET() {
   try {
     const decoded = verify(token.value, JWT_SECRET) as {
       username: string;
-      blogId: string;
+      subdomain: string;
     };
     return NextResponse.json({
       authenticated: true,
       username: decoded.username,
-      blogId: decoded.blogId,
+      subdomain: decoded.subdomain,
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });

@@ -8,6 +8,7 @@ export async function POST(request: Request) {
   try {
     // Check if the user already exists
     const [existingUser] = await db.query(
+      undefined,
       "SELECT * FROM users WHERE username = ?",
       [username]
     );
@@ -18,20 +19,34 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a new blog
-    const blogResult = await db.run(
-      "INSERT INTO blogs (subdomain, name) VALUES (?, ?)",
-      [blogSubdomain, blogName]
+    // Check if the subdomain is already taken
+    const [existingBlog] = await db.query(
+      undefined,
+      "SELECT * FROM blogs WHERE subdomain = ?",
+      [blogSubdomain]
     );
-    const blogId = blogResult.lastID;
+    if (existingBlog) {
+      return NextResponse.json(
+        { error: "Blog subdomain already exists" },
+        { status: 400 }
+      );
+    }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create a new blog
+    await db.run(
+      undefined,
+      "INSERT INTO blogs (subdomain, name) VALUES (?, ?)",
+      [blogSubdomain, blogName]
+    );
+
     // Create a new user
     await db.run(
-      "INSERT INTO users (username, password, blog_id) VALUES (?, ?, ?)",
-      [username, hashedPassword, blogId]
+      undefined,
+      "INSERT INTO users (username, password, subdomain) VALUES (?, ?, ?)",
+      [username, hashedPassword, blogSubdomain]
     );
 
     return NextResponse.json(

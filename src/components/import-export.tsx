@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { FileUpload } from "./file-upload";
-import { useAuth } from "./providers/auth-context";
 
 interface ImportExportDataProps {
-  blogId: string;
+  subdomain: string;
 }
 
-export function ImportExportData({ blogId }: ImportExportDataProps) {
+export function ImportExportData({ subdomain }: ImportExportDataProps) {
   const [file, setFile] = useState<File | null>(null);
   const [imageZip, setImageZip] = useState<File | null>(null);
   const [loading, setLoading] = useState({
@@ -23,25 +22,24 @@ export function ImportExportData({ blogId }: ImportExportDataProps) {
   const [dataFileKey, setDataFileKey] = useState(Date.now().toString());
   const [imageFileKey, setImageFileKey] = useState(Date.now().toString());
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
 
   const handleLoadingState = (action: keyof typeof loading, state: boolean) => {
     setLoading((prev) => ({ ...prev, [action]: state }));
   };
 
   const handleExport = async () => {
-    if (!isAuthenticated || !blogId) return;
+    if (!subdomain) return;
     handleLoadingState("exportData", true);
     setError(null);
     try {
-      const response = await fetch(`/api/export-data?blogId=${blogId}`);
+      const response = await fetch(`/api/export-data?subdomain=${subdomain}`);
       if (!response.ok) throw new Error("Export failed");
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.download = "blog_data.json";
+      a.download = `${subdomain}-blog_data.json`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -59,12 +57,12 @@ export function ImportExportData({ blogId }: ImportExportDataProps) {
   };
 
   const handleImport = async () => {
-    if (!file || !isAuthenticated || !blogId) return;
+    if (!file || !subdomain) return;
     handleLoadingState("importData", true);
     setError(null);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("blogId", blogId);
+    formData.append("subdomain", subdomain);
     try {
       const response = await fetch("/api/import-data", {
         method: "POST",
@@ -87,11 +85,11 @@ export function ImportExportData({ blogId }: ImportExportDataProps) {
   };
 
   const handleExportImage = async () => {
-    if (!isAuthenticated || !blogId) return;
+    if (!subdomain) return;
     handleLoadingState("exportImages", true);
     setError(null);
     try {
-      const response = await fetch(`/api/export-images?blogId=${blogId}`);
+      const response = await fetch(`/api/export-images?subdomain=${subdomain}`);
       if (!response.ok) throw new Error("Export failed");
 
       const blob = await response.blob();
@@ -99,7 +97,7 @@ export function ImportExportData({ blogId }: ImportExportDataProps) {
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.download = "blog-images.zip";
+      a.download = `${subdomain}-blog-images.zip`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -117,12 +115,12 @@ export function ImportExportData({ blogId }: ImportExportDataProps) {
   };
 
   const handleImportImages = async () => {
-    if (!imageZip || !isAuthenticated || !blogId) return;
+    if (!imageZip || !subdomain) return;
     handleLoadingState("importImages", true);
     setError(null);
     const formData = new FormData();
     formData.append("file", imageZip);
-    formData.append("blogId", blogId);
+    formData.append("subdomain", subdomain);
     try {
       const response = await fetch("/api/import-images", {
         method: "POST",
@@ -144,9 +142,9 @@ export function ImportExportData({ blogId }: ImportExportDataProps) {
     }
   };
 
-  // if (!isAuthenticated || !blogId) {
-  //   return <div>You must be authenticated to access this feature.</div>;
-  // }
+  if (!subdomain) {
+    return <div>You must be authenticated to access this feature.</div>;
+  }
 
   return (
     <div className="space-y-6 max-w-md">

@@ -9,7 +9,6 @@ interface PageProps {
 
 export default async function SubdomainPage({ params }: PageProps) {
   const { subdomain } = params;
-  // console.log("Received subdomain:", subdomain);
 
   if (!subdomain) {
     console.error("Subdomain is undefined");
@@ -18,10 +17,11 @@ export default async function SubdomainPage({ params }: PageProps) {
 
   try {
     // Fetch the blog to ensure it exists
-    const [blog] = await db.query("SELECT * FROM blogs WHERE subdomain = ?", [
-      subdomain,
-    ]);
-    // console.log("Database query result:", blog);
+    const [blog] = await db.query(
+      undefined,
+      "SELECT * FROM blogs WHERE subdomain = ?",
+      [subdomain]
+    );
 
     if (!blog) {
       console.error(`No blog found for subdomain: ${subdomain}`);
@@ -32,7 +32,7 @@ export default async function SubdomainPage({ params }: PageProps) {
       <>
         <Header />
         <MainContainer>
-          <BlogListPage blogId={blog.id.toString()} subdomain={subdomain} />
+          <BlogListPage subdomain={subdomain} />
         </MainContainer>
       </>
     );

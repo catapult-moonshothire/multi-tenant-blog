@@ -9,9 +9,6 @@ export default async function RootPage() {
   const hostname = headersList.get("host") || "";
   const subdomain = hostname.split(".")[0];
 
-  console.log("RootPage - Hostname:", hostname);
-  console.log("RootPage - Subdomain:", subdomain);
-
   // Handle root domain or default behavior
   if (subdomain === "localhost" || subdomain === "blog") {
     return (
@@ -29,6 +26,7 @@ export default async function RootPage() {
   // Fetch and display subdomain-specific blog content
   try {
     const [tenantBlog] = await db.query(
+      undefined,
       "SELECT * FROM blogs WHERE subdomain = ?",
       [subdomain]
     );
@@ -48,10 +46,7 @@ export default async function RootPage() {
       <>
         <Header />
         <MainContainer>
-          <BlogListPage
-            blogId={tenantBlog.id.toString()}
-            subdomain={tenantBlog.subdomain}
-          />
+          <BlogListPage subdomain={tenantBlog.subdomain} />
         </MainContainer>
       </>
     );

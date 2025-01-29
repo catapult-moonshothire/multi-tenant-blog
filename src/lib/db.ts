@@ -1,36 +1,47 @@
+import fs from "fs/promises";
+import path from "path";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 
-let db: any = null;
+const DB_DIR = path.join(process.cwd(), "db");
+const MAIN_DB_PATH = path.join(DB_DIR, "main.sqlite");
 
-async function openDb() {
-  if (!db) {
-    try {
-      if (typeof window === "undefined") {
-        // Server-side
-        db = await open({
-          filename: "./multi_tenant_blog.sqlite",
-          driver: sqlite3.Database,
-        });
-      } else {
-        // Client-side
-        throw new Error(
-          "Database operations are not supported on the client-side"
-        );
-      }
+async function openDb(subdomain?: string) {
+  const dbPath = subdomain
+    ? path.join(DB_DIR, `${subdomain}.sqlite`)
+    : MAIN_DB_PATH;
 
+  try {
+    // Ensure the database directory exists
+    await fs.mkdir(DB_DIR, { recursive: true });
+
+    const db = await open({
+      filename: dbPath,
+      driver: sqlite3.Database,
+    });
+
+    // Initialize the database schema if it doesn't exist
+    if (!subdomain) {
       await db.exec(`
+        CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT UNIQUE NOT NULL,
+          password TEXT NOT NULL,
+          subdomain TEXT UNIQUE NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
         CREATE TABLE IF NOT EXISTS blogs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           subdomain TEXT UNIQUE NOT NULL,
-          custom_domain TEXT UNIQUE,
           name TEXT NOT NULL,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-
+      `);
+    } else {
+      await db.exec(`
         CREATE TABLE IF NOT EXISTS blog_posts (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          blog_id INTEGER NOT NULL,
           title TEXT NOT NULL,
           slug TEXT NOT NULL,
           content TEXT NOT NULL,
@@ -48,21 +59,26 @@ async function openDb() {
           images TEXT,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT,
-          UNIQUE(blog_id, slug),
-          FOREIGN KEY (blog_id) REFERENCES blogs(id)
+          subdomain TEXT NOT NULL,
+          UNIQUE(slug)
         );
       `);
-    } catch (error) {
-      console.error("Database initialization error:", error);
-      throw error;
     }
+
+    return db;
+  } catch (error) {
+    console.error(`Error opening database at ${dbPath}:`, error);
+    throw error;
   }
-  return db;
 }
 
-export async function query(sql: string, params: any[] = []) {
+export async function query(
+  subdomain: string | undefined,
+  sql: string,
+  params: any[] = []
+) {
   try {
-    const db = await openDb();
+    const db = await openDb(subdomain);
     return await db.all(sql, params);
   } catch (error) {
     console.error("Database query error:", error);
@@ -70,9 +86,13 @@ export async function query(sql: string, params: any[] = []) {
   }
 }
 
-export async function run(sql: string, params: any[] = []) {
+export async function run(
+  subdomain: string | undefined,
+  sql: string,
+  params: any[] = []
+) {
   try {
-    const db = await openDb();
+    const db = await openDb(subdomain);
     return await db.run(sql, params);
   } catch (error) {
     console.error("Database run error:", error);

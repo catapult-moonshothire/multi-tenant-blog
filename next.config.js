@@ -4,6 +4,17 @@ const nextConfig = {
   images: {
     domains: ["localhost", "abhinavbaldha.com"],
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
+      };
+    }
+    return config;
+  },
   webpack: (config) => {
     config.module.rules.push({
       test: /\.svg$/,

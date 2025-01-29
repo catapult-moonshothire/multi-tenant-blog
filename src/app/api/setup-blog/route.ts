@@ -3,7 +3,6 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const blogId = searchParams.get("blogId");
   const subdomain = searchParams.get("subdomain");
   const name = searchParams.get("name");
 
@@ -17,24 +16,29 @@ export async function GET(request: NextRequest) {
   try {
     // Check if the blogs table exists
     const tables = await db.query(
+      undefined,
       "SELECT name FROM sqlite_master WHERE type='table' AND name='blogs'"
     );
 
     if (tables.length === 0) {
       // Create the blogs table
-      await db.run(`
+      await db.run(
+        undefined,
+        `
         CREATE TABLE blogs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           subdomain TEXT UNIQUE NOT NULL,
           name TEXT NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `);
+      `
+      );
       console.log("blogs table created");
     }
 
     // Check if the blog with the given subdomain already exists
     const [existingBlog] = await db.query(
+      undefined,
       "SELECT * FROM blogs WHERE subdomain = ?",
       [subdomain]
     );
@@ -51,14 +55,17 @@ export async function GET(request: NextRequest) {
 
     // Create a new blog
     const result = await db.run(
+      undefined,
       "INSERT INTO blogs (subdomain, name) VALUES (?, ?)",
       [subdomain, name]
     );
 
     const newBlogId = result.lastID;
-    const [newBlog] = await db.query("SELECT * FROM blogs WHERE id = ?", [
-      newBlogId,
-    ]);
+    const [newBlog] = await db.query(
+      undefined,
+      "SELECT * FROM blogs WHERE id = ?",
+      [newBlogId]
+    );
 
     console.log(`Blog ${newBlogId} created`);
     return NextResponse.json(

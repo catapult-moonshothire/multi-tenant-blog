@@ -9,13 +9,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.rewrite(new URL("/", request.url));
   }
 
-  const [blog] = await db.query("SELECT * FROM blogs WHERE subdomain = ?", [
-    subdomain,
-  ]);
+  try {
+    const [blog] = await db.query(
+      undefined,
+      "SELECT * FROM blogs WHERE subdomain = ?",
+      [subdomain]
+    );
 
-  if (blog) {
-    return NextResponse.rewrite(new URL(`/?blogId=${blog.id}`, request.url));
+    if (blog) {
+      return NextResponse.rewrite(
+        new URL(`/?subdomain=${blog.subdomain}`, request.url)
+      );
+    }
+
+    return NextResponse.rewrite(new URL("/404", request.url));
+  } catch (error) {
+    console.error("Error in subdomain route:", error);
+    return NextResponse.rewrite(new URL("/500", request.url));
   }
-
-  return NextResponse.rewrite(new URL("/404", request.url));
 }

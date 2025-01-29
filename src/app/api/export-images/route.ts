@@ -1,11 +1,21 @@
 import { readdir, readFile } from "fs/promises";
 import JSZip from "jszip";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import path from "path";
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const subdomain = searchParams.get("subdomain");
+
+  if (!subdomain) {
+    return NextResponse.json(
+      { error: "Subdomain is required" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const imagesDir = path.join(process.cwd(), "public", "images");
+    const imagesDir = path.join(process.cwd(), "public", "images", subdomain);
     const files = await readdir(imagesDir);
 
     const zip = new JSZip();
@@ -20,7 +30,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(zipContent, {
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename="blog-images.zip"`,
+        "Content-Disposition": `attachment; filename="${subdomain}-blog-images.zip"`,
       },
     });
   } catch (error) {

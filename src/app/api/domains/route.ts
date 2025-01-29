@@ -6,6 +6,7 @@ export async function POST(request: NextRequest) {
     const { subdomain, customDomain, name } = await request.json();
 
     const result = await db.run(
+      undefined,
       `INSERT INTO blogs (subdomain, custom_domain, name) VALUES (?, ?, ?)`,
       [subdomain, customDomain, name]
     );
@@ -26,7 +27,7 @@ export async function PUT(request: NextRequest) {
   try {
     const { id, customDomain } = await request.json();
 
-    await db.run(`UPDATE blogs SET custom_domain = ? WHERE id = ?`, [
+    await db.run(undefined, `UPDATE blogs SET custom_domain = ? WHERE id = ?`, [
       customDomain,
       id,
     ]);

@@ -1,25 +1,29 @@
-// app/api/import-data/route.ts
-
 import db from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    const subdomain = formData.get("subdomain") as string;
+
+    if (!file || !subdomain) {
+      return NextResponse.json(
+        { error: "No file uploaded or subdomain missing" },
+        { status: 400 }
+      );
     }
 
     const fileContent = await file.text();
     const data = JSON.parse(fileContent);
 
-    // Clear existing data
-    await db.run("DELETE FROM blog_posts");
+    // Clear existing data for the specific subdomain
+    await db.run(subdomain, "DELETE FROM blog_posts");
 
     // Insert new data
     for (const post of data) {
       await db.run(
+        subdomain,
         `INSERT INTO blog_posts (title, slug, content, content_preview, is_draft, author, category, meta_title, meta_description, label, author_bio, reading_time, featured_image_url, status, images, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [

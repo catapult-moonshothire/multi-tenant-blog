@@ -87,10 +87,10 @@ export default function BlogPostDisplay() {
   }, [title, setValue]);
 
   const fetchPosts = async () => {
-    if (!user?.blogId) return;
+    if (!user?.subdomain) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/posts?blogId=${user.blogId}`);
+      const response = await fetch(`/api/posts?subdomain=${user.subdomain}`);
       if (!response.ok) {
         throw new Error("Failed to fetch posts");
       }
@@ -104,10 +104,10 @@ export default function BlogPostDisplay() {
   };
 
   const handleAddPost = async (data: BlogPost, isDraft = false) => {
-    if (!user || !user.blogId) {
+    if (!user || !user.subdomain) {
       toast({
         title: "Error",
-        description: "Unable to create post. Blog ID not found.",
+        description: "Unable to create post. Subdomain not found.",
         variant: "destructive",
       });
       return;
@@ -115,7 +115,7 @@ export default function BlogPostDisplay() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(`/api/posts?blogId=${user.blogId}`, {
+      const response = await fetch(`/api/posts?subdomain=${user.subdomain}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -136,11 +136,11 @@ export default function BlogPostDisplay() {
       const newPost = await response.json();
 
       const purgeSuccess = await triggerPurge(
-        `/blog/${user.blogId}/${data.slug}`,
+        `/${user.subdomain}/blog/${data.slug}`,
         "blog-posts"
       );
 
-      await triggerPurge(`/blog/${user.blogId}`, "blog-posts");
+      await triggerPurge(`/${user.subdomain}`, "blog-posts");
 
       toast({
         title: "Success",
@@ -162,13 +162,13 @@ export default function BlogPostDisplay() {
   };
 
   const handleEditPost = async (updatedData: BlogPost, isDraft = false) => {
-    if (!currentPost || !user?.blogId) return;
+    if (!currentPost || !user?.subdomain) return;
 
     try {
       setIsSubmitting(true);
 
       const response = await fetch(
-        `/api/posts/${currentPost.slug}?blogId=${user.blogId}`,
+        `/api/posts/${currentPost.slug}?subdomain=${user.subdomain}`,
         {
           method: "PUT",
           headers: {
@@ -188,11 +188,11 @@ export default function BlogPostDisplay() {
       }
 
       const purgeSuccess = await triggerPurge(
-        `/blog/${user.blogId}/${updatedData.slug}`,
+        `/${user.subdomain}/blog/${updatedData.slug}`,
         "blog-posts"
       );
 
-      await triggerPurge(`/blog/${user.blogId}`, "blog-posts");
+      await triggerPurge(`/${user.subdomain}`, "blog-posts");
 
       toast({
         title: "Success",
@@ -223,11 +223,11 @@ export default function BlogPostDisplay() {
   };
 
   const handlePublishDraft = async (post: BlogPost) => {
-    if (!user?.blogId) return;
+    if (!user?.subdomain) return;
     try {
       setIsSubmitting(true);
       const response = await fetch(
-        `/api/posts/${post.slug}?blogId=${user.blogId}`,
+        `/api/posts/${post.slug}?subdomain=${user.subdomain}`,
         {
           method: "PUT",
           headers: {
@@ -245,11 +245,11 @@ export default function BlogPostDisplay() {
       }
 
       const purgeSuccess = await triggerPurge(
-        `/blog/${user.blogId}/${post.slug}`,
+        `/${user.subdomain}/blog/${post.slug}`,
         "blog-posts"
       );
 
-      await triggerPurge(`/blog/${user.blogId}`, "blog-posts");
+      await triggerPurge(`/${user.subdomain}`, "blog-posts");
       toast({
         title: "Success",
         description: `Post published successfully${
@@ -296,13 +296,13 @@ export default function BlogPostDisplay() {
   };
 
   const handleDeleteConfirmed = async () => {
-    if (!deleteConfirmation.slug || !user?.blogId) return;
+    if (!deleteConfirmation.slug || !user?.subdomain) return;
 
     try {
       setIsSubmitting(true);
 
       const response = await fetch(
-        `/api/posts/${deleteConfirmation.slug}?blogId=${user.blogId}`,
+        `/api/posts/${deleteConfirmation.slug}?subdomain=${user.subdomain}`,
         {
           method: "DELETE",
         }
@@ -313,11 +313,11 @@ export default function BlogPostDisplay() {
       }
 
       const purgeSuccess = await triggerPurge(
-        `/blog/${user.blogId}/${deleteConfirmation.slug}`,
+        `/${user.subdomain}/blog/${deleteConfirmation.slug}`,
         "blog-posts"
       );
 
-      await triggerPurge(`/blog/${user.blogId}`, "blog-posts");
+      await triggerPurge(`/${user.subdomain}`, "blog-posts");
       toast({
         title: "Success",
         description:
@@ -347,8 +347,10 @@ export default function BlogPostDisplay() {
 
   const renderPostItem = (post: BlogPost, isDraft = false) => (
     <BlogPostItem
+      key={post.id}
       post={post}
       isDraft={isDraft}
+      subdomain={user?.subdomain || ""}
       onEdit={() => openEditorForEdit(post)}
       onDelete={() => initiateDelete(post.slug)}
       onPublish={() => handlePublishDraft(post)}
@@ -418,7 +420,7 @@ export default function BlogPostDisplay() {
               <CardTitle>Settings</CardTitle>
             </CardHeader>
             <CardContent>
-              <ImportExportData blogId={user?.blogId || ""} />
+              <ImportExportData subdomain={user?.subdomain || ""} />
             </CardContent>
           </Card>
         );
@@ -455,7 +457,8 @@ export default function BlogPostDisplay() {
                 variant={activeTab === item.id ? "default" : "ghost"}
                 className="w-full justify-start"
                 onClick={() => {
-                  return setActiveTab(item.id), setIsSidebarOpen(false);
+                  setActiveTab(item.id);
+                  setIsSidebarOpen(false);
                 }}
               >
                 <item.icon className="mr-2 h-4 w-4" />
@@ -464,9 +467,9 @@ export default function BlogPostDisplay() {
             ))}
           </nav>
           <div className="border-t mt-auto mb-6 pt-4 space-y-2">
-            <Link href="/">
+            <Link href={`/${user?.subdomain}`}>
               <Button className="w-full" variant="secondary">
-                Visit Home
+                View Blog
               </Button>
             </Link>
             {isAuthenticated && (

@@ -32,6 +32,7 @@
 //   return NextResponse.json({ success: false }, { status: 401 });
 // }
 
+//app/api/login/route.ts
 import db from "@/lib/db";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
@@ -44,9 +45,12 @@ export async function POST(request: Request) {
   const { username, password } = await request.json();
 
   try {
-    const [user] = await db.query("SELECT * FROM users WHERE username = ?", [
-      username,
-    ]);
+    // Assuming you have a 'users' table in the main database
+    const [user] = await db.query(
+      "main",
+      "SELECT * FROM users WHERE username = ?",
+      [username]
+    );
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return NextResponse.json(
@@ -55,11 +59,13 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("user from login route", user);
-
-    const token = sign({ userId: user.id, blogId: user.blog_id }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = sign(
+      { userId: user.id, subdomain: user.subdomain },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     cookies().set("auth_token", token, {
       httpOnly: true,
@@ -71,7 +77,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      blogId: user.blog_id,
+      subdomain: user.subdomain,
       username: user.username,
     });
   } catch (error) {

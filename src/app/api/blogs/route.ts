@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const blogs = await db.query("SELECT * FROM blogs");
+    const blogs = await db.query(undefined, "SELECT * FROM blogs");
     return NextResponse.json(blogs);
   } catch (error) {
     return NextResponse.json(
@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
   try {
     const { subdomain, name, custom_domain } = await request.json();
     const result = await db.run(
+      undefined,
       "INSERT INTO blogs (subdomain, name, custom_domain) VALUES (?, ?, ?)",
       [subdomain, name, custom_domain]
     );

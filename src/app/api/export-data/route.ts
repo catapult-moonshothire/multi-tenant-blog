@@ -1,16 +1,24 @@
-// app/api/export-data/route.ts
-
 import db from "@/lib/db";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const subdomain = searchParams.get("subdomain");
+
+  if (!subdomain) {
+    return NextResponse.json(
+      { error: "Subdomain is required" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const posts = await db.query("SELECT * FROM blog_posts");
+    const posts = await db.query(subdomain, "SELECT * FROM blog_posts");
     return new NextResponse(JSON.stringify(posts), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Content-Disposition": "attachment; filename=blog_data.json",
+        "Content-Disposition": `attachment; filename=${subdomain}-blog_data.json`,
       },
     });
   } catch (error) {

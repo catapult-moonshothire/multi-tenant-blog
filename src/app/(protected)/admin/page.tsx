@@ -3,36 +3,33 @@
 import BlogPostDisplay from "@/components/blog-post-display";
 import MainContainer from "@/components/layout/main-container";
 import { useAuth } from "@/components/providers/auth-context";
-import Head from "next/head";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { Input } from "../../../components/ui/input";
-import { Spinner } from "../../../components/ui/spinner";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { Eye, EyeOff } from "lucide-react";
+import Head from "next/head";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useId, useState } from "react";
 
 export default function Admin() {
   const { isAuthenticated, login, user, error } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [blogs, setBlogs] = useState([]);
-  const [blogId, setBlogId] = useState("1");
-  const router = useRouter();
+  const id = useId();
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Fetch available blogs
-    fetch("/api/blogs")
-      .then((res) => res.json())
-      .then((data) => setBlogs(data))
-      .catch((err) => console.error("Failed to fetch blogs:", err));
-  }, []);
+  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -43,8 +40,7 @@ export default function Admin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await login(username, password, blogId);
-    setBlogId(user?.blogId || "");
+    await login(username, password);
     setLoading(false);
   };
 
@@ -70,6 +66,7 @@ export default function Admin() {
                 <Input
                   id="username"
                   type="text"
+                  placeholder="john@doe.com"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -82,16 +79,34 @@ export default function Admin() {
                 >
                   Password
                 </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pe-9"
+                    placeholder="********"
+                    type={isVisible ? "text" : "password"}
+                  />
+                  <button
+                    className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    type="button"
+                    onClick={toggleVisibility}
+                    aria-label={isVisible ? "Hide password" : "Show password"}
+                    aria-pressed={isVisible}
+                    aria-controls="password"
+                  >
+                    {isVisible ? (
+                      <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
+                    ) : (
+                      <Eye size={16} strokeWidth={2} aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full " disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </Button>
             </form>
@@ -108,12 +123,6 @@ export default function Admin() {
       </Head>
       <MainContainer className="" large={true}>
         <div className="">
-          {/* <div className="flex items-center px-4 gap-2 justify-end">
-            <Link href="/">
-              <Button variant={"secondary"}>Home</Button>
-            </Link>
-            <Button onClick={logout}>Logout</Button>
-          </div> */}
           {loading ? (
             <Spinner />
           ) : error ? (

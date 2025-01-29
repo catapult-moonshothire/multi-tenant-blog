@@ -16,7 +16,6 @@ interface BlogPost {
 }
 
 interface BlogPostsProps {
-  blogId: string;
   subdomain: string;
 }
 
@@ -25,16 +24,11 @@ export const metadata: Metadata = {
   description: "A collection of my blog posts.",
 };
 
-export default async function BlogListPage({
-  blogId,
-  subdomain,
-}: BlogPostsProps) {
+export default async function BlogListPage({ subdomain }: BlogPostsProps) {
   const blogPosts: BlogPost[] = await db.query(
-    "SELECT * FROM blog_posts WHERE blog_id = ? AND is_draft = 0 ORDER BY created_at DESC",
-    [blogId]
+    subdomain,
+    "SELECT * FROM blog_posts WHERE is_draft = 0 ORDER BY created_at DESC"
   );
-
-  // console.log("subdomain from list page", subdomain);
 
   // If no posts are available, return a message instead of the spinner
   if (blogPosts.length === 0) {

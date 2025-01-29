@@ -1,36 +1,41 @@
 import db from "@/lib/db";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function POST(request: NextRequest) {
   try {
-    // Check if the blogs table exists
-    const tables = await db.query(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='blogs'"
+    const { subdomain, customDomain, name } = await request.json();
+
+    const result = await db.run(
+      undefined,
+      `INSERT INTO blogs (subdomain, custom_domain, name) VALUES (?, ?, ?)`,
+      [subdomain, customDomain, name]
     );
 
-    if (tables.length === 0) {
-      return NextResponse.json(
-        { error: "blogs table does not exist" },
-        { status: 404 }
-      );
-    }
-
-    // Check the structure of the blogs table
-    const columns = await db.query("PRAGMA table_info(blogs)");
-
-    // Check if a blog with ID 1 exists
-    const [blog] = await db.query("SELECT * FROM blogs WHERE id = ?", [1]);
-
-    return NextResponse.json({
-      tableExists: true,
-      columns: columns,
-      blogExists: blog ? true : false,
-      blog: blog,
-    });
-  } catch (error) {
-    console.error("Error checking database:", error);
     return NextResponse.json(
-      { error: "Failed to check database" },
+      { id: result.lastID, subdomain, customDomain, name },
+      { status: 201 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to create blog" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, customDomain } = await request.json();
+
+    await db.run(undefined, `UPDATE blogs SET custom_domain = ? WHERE id = ?`, [
+      customDomain,
+      id,
+    ]);
+
+    return NextResponse.json({ message: "Custom domain updated successfully" });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to update custom domain" },
       { status: 500 }
     );
   }

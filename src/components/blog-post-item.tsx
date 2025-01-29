@@ -8,6 +8,7 @@ import { Button } from "./ui/button";
 interface BlogPostItemProps {
   post: BlogPost;
   isDraft: boolean;
+  subdomain: string;
   onEdit: () => void;
   onDelete: () => void;
   onPublish: () => void;
@@ -16,6 +17,7 @@ interface BlogPostItemProps {
 export default function BlogPostItem({
   post,
   isDraft,
+  subdomain,
   onEdit,
   onDelete,
   onPublish,
@@ -35,7 +37,7 @@ export default function BlogPostItem({
             {post.title}
           </Button>
           {!isDraft && (
-            <Link target="_blank" href={`/blog/${post.slug}`}>
+            <Link target="_blank" href={`${subdomain}/blog/${post.slug}`}>
               <LinkIcon size={14} />
             </Link>
           )}
