@@ -3,7 +3,10 @@ import path from "path";
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 
-const DB_DIR = path.join(process.cwd(), "db");
+const DB_DIR =
+  process.env.NODE_ENV === "production"
+    ? "/db"
+    : path.join(process.cwd(), "db");
 const MAIN_DB_PATH = path.join(DB_DIR, "main.sqlite");
 
 async function openDb(subdomain?: string) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { FileUpload } from "./file-upload";
@@ -12,6 +13,7 @@ interface ImportExportDataProps {
 export function ImportExportData({ subdomain }: ImportExportDataProps) {
   const [file, setFile] = useState<File | null>(null);
   const [imageZip, setImageZip] = useState<File | null>(null);
+  const [keepExistingData, setKeepExistingData] = useState(false);
   const [loading, setLoading] = useState({
     exportData: false,
     importData: false,
@@ -63,6 +65,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("subdomain", subdomain);
+    formData.append("keepExistingData", keepExistingData.toString());
     try {
       const response = await fetch("/api/import-data", {
         method: "POST",
@@ -183,6 +186,21 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
           accept=".json"
           label="JSON file"
         />
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="keepExistingData"
+            checked={keepExistingData}
+            onCheckedChange={(checked: boolean) =>
+              setKeepExistingData(checked as boolean)
+            }
+          />
+          <label
+            htmlFor="keepExistingData"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Keep existing data
+          </label>
+        </div>
         <Button
           className="w-full"
           onClick={handleImport}
