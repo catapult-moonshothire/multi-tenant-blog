@@ -18,7 +18,7 @@ export default async function SubdomainPage({ params }: PageProps) {
   try {
     // Fetch the blog to ensure it exists
     const [blog] = await db.query(
-      undefined,
+      "main",
       "SELECT * FROM blogs WHERE subdomain = ?",
       [subdomain]
     );

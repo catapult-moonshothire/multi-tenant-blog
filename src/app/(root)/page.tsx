@@ -26,7 +26,7 @@ export default async function RootPage() {
   // Fetch and display subdomain-specific blog content
   try {
     const [tenantBlog] = await db.query(
-      undefined,
+      "main",
       "SELECT * FROM blogs WHERE subdomain = ?",
       [subdomain]
     );

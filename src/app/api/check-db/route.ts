@@ -6,13 +6,13 @@ export async function POST(request: NextRequest) {
     const { subdomain, customDomain, name } = await request.json();
 
     const result = await db.run(
-      undefined,
+      "main",
       `INSERT INTO blogs (subdomain, custom_domain, name) VALUES (?, ?, ?)`,
       [subdomain, customDomain, name]
     );
 
     return NextResponse.json(
-      { id: result.lastID, subdomain, customDomain, name },
+      { id: result?.lastID, subdomain, customDomain, name },
       { status: 201 }
     );
   } catch (error) {
@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest) {
   try {
     const { id, customDomain } = await request.json();
 
-    await db.run(undefined, `UPDATE blogs SET custom_domain = ? WHERE id = ?`, [
+    await db.run("main", `UPDATE blogs SET custom_domain = ? WHERE id = ?`, [
       customDomain,
       id,
     ]);

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const [blog] = await db.query(
-      undefined,
+      "main",
       "SELECT * FROM blogs WHERE subdomain = ?",
       [subdomain]
     );

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       ]
     );
     return NextResponse.json(
-      { id: result.lastID, ...body, subdomain },
+      { id: result?.lastID, ...body, subdomain },
       { status: 201 }
     );
   } catch (error) {

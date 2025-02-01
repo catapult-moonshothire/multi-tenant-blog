@@ -16,14 +16,14 @@ export async function GET(request: NextRequest) {
   try {
     // Check if the blogs table exists
     const tables = await db.query(
-      undefined,
+      "main",
       "SELECT name FROM sqlite_master WHERE type='table' AND name='blogs'"
     );
 
     if (tables.length === 0) {
       // Create the blogs table
       await db.run(
-        undefined,
+        "main",
         `
         CREATE TABLE blogs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     // Check if the blog with the given subdomain already exists
     const [existingBlog] = await db.query(
-      undefined,
+      "main",
       "SELECT * FROM blogs WHERE subdomain = ?",
       [subdomain]
     );
@@ -55,14 +55,14 @@ export async function GET(request: NextRequest) {
 
     // Create a new blog
     const result = await db.run(
-      undefined,
+      "main",
       "INSERT INTO blogs (subdomain, name) VALUES (?, ?)",
       [subdomain, name]
     );
 
-    const newBlogId = result.lastID;
+    const newBlogId = result?.lastID;
     const [newBlog] = await db.query(
-      undefined,
+      "main",
       "SELECT * FROM blogs WHERE id = ?",
       [newBlogId]
     );

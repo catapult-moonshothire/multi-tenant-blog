@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { NameTransition } from "../name";
 
 // Header component
@@ -10,9 +9,9 @@ const Header = () => (
         <span>Writer</span>
       </div>
     </div>
-    <Link href="https://x.com/" className="no-underline text-2xl">
+    {/* <Link href="https://x.com/" className="no-underline text-2xl">
       𝕏
-    </Link>
+    </Link> */}
   </header>
 );
 
