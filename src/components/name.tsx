@@ -6,7 +6,7 @@ export function NameTransition() {
       href="/"
       className="text-xl sm:text-2xl mb-2 font-bold transition-element"
     >
-      <span className="sr-only">Lee Robinson</span>
+      <span className="sr-only">Abhinav Baldha</span>
       <span aria-hidden="true" className="block overflow-hidden group relative">
         <span className="inline-block transition-all duration-300 ease-in-out group-hover:-translate-y-full">
           {"Abhinav Baldha".split("").map((letter, index) => (

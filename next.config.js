@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  assetPrefix: "https://godsofgrowth.com",
   reactStrictMode: true,
   images: {
     domains: ["localhost", "abhinavbaldha.com"],
