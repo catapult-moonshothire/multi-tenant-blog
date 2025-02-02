@@ -18,21 +18,25 @@ export default async function SubdomainPage({ params }: PageProps) {
   try {
     // Fetch the blog to ensure it exists
     const [blog] = await db.query(
-      "main",
-      "SELECT * FROM blogs WHERE subdomain = ?",
-      [subdomain]
+      undefined,
+      "SELECT * FROM blogs WHERE subdomain = ? OR custom_domain = ?",
+      [subdomain, subdomain]
     );
 
     if (!blog) {
-      console.error(`No blog found for subdomain: ${subdomain}`);
-      return <div>Blog not found for subdomain: {subdomain}</div>;
+      console.error(
+        `No blog found for subdomain or custom domain: ${subdomain}`
+      );
+      return <div>Blog not found for: {subdomain}</div>;
     }
+
+    const actualSubdomain = blog.subdomain;
 
     return (
       <>
         <Header />
         <MainContainer>
-          <BlogListPage subdomain={subdomain} />
+          <BlogListPage subdomain={actualSubdomain} />
         </MainContainer>
       </>
     );

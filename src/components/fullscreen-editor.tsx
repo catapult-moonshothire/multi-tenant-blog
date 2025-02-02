@@ -73,7 +73,7 @@ export default function FullScreenEditor({
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 font-bold" />
             </Button>
           </div>
         </header>

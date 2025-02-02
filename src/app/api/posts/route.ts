@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     );
     return NextResponse.json(posts);
   } catch (error) {
+    console.error("Failed to fetch posts:", error);
     return NextResponse.json(
       { error: "Failed to fetch posts" },
       { status: 500 }
@@ -60,12 +61,12 @@ export async function POST(request: NextRequest) {
         rest.reading_time,
         rest.featured_image_url,
         rest.status,
-        rest.images,
+        JSON.stringify(rest.images || []),
         subdomain,
       ]
     );
     return NextResponse.json(
-      { id: result?.lastID, ...body, subdomain },
+      { id: result.lastID, ...body, subdomain },
       { status: 201 }
     );
   } catch (error) {

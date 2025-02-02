@@ -100,33 +100,123 @@
 //   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 // };
 
-// middleware.ts
+// import db from "@/lib/db";
+// import type { NextRequest } from "next/server";
+// import { NextResponse } from "next/server";
+
+// export async function middleware(request: NextRequest) {
+//   const url = request.nextUrl;
+//   const hostname = request.headers.get("host") || "";
+//   const subdomain = hostname.split(".")[0];
+
+//   // Exclude API routes and static files
+//   if (url.pathname.startsWith("/api") || url.pathname.startsWith("/_next")) {
+//     return NextResponse.next();
+//   }
+
+//   // Handle root domain
+//   if (hostname === "localhost:3000" || hostname === "135.181.35.223") {
+//     console.log("Middleware - Root domain detected");
+//     return NextResponse.next(); // Show the default landing page
+//   }
+
+//   // Handle custom domain requests
+//   try {
+//     const [blog] = await db.query(
+//       "main",
+//       "SELECT subdomain FROM blogs WHERE custom_domain = ?",
+//       [hostname]
+//     );
+
+//     if (blog) {
+//       const newUrl = new URL(`/${blog.subdomain}${url.pathname}`, request.url);
+//       return NextResponse.rewrite(newUrl);
+//     }
+//   } catch (error) {
+//     console.error("Middleware - Error handling custom domain:", error);
+//   }
+
+//   // Handle subdomain requests
+//   if (
+//     subdomain &&
+//     subdomain !== "localhost" &&
+//     subdomain !== "blog" &&
+//     subdomain !== "www"
+//   ) {
+//     console.log("Middleware - Subdomain detected:", subdomain);
+//     const newUrl = new URL(url.pathname, request.url);
+//     return NextResponse.rewrite(new URL(`/`, newUrl)); // Rewrite to subdomain's root
+//   }
+
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+// };
+
+import db from "@/lib/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
   const hostname = request.headers.get("host") || "";
-  const subdomain = hostname.split(".")[0];
 
   // Exclude API routes and static files
   if (url.pathname.startsWith("/api") || url.pathname.startsWith("/_next")) {
     return NextResponse.next();
   }
 
+  // Extract the main domain from environment variable or default to xxyy.in
+  const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "xxyy.in";
+
   // Handle root domain
-  if (hostname === "localhost:3000" || hostname === "blog.localhost:3000") {
+  if (hostname === MAIN_DOMAIN || hostname === `www.${MAIN_DOMAIN}`) {
     console.log("Middleware - Root domain detected");
-    return NextResponse.next(); // Show the default landing page
+    return NextResponse.next();
   }
 
-  // Handle subdomain requests
-  if (subdomain && subdomain !== "localhost" && subdomain !== "blog") {
-    console.log("Middleware - Subdomain detected:", subdomain);
-    const newUrl = new URL(url.pathname, request.url);
-    return NextResponse.rewrite(new URL(`/`, newUrl)); // Rewrite to subdomain's root
+  try {
+    let subdomain: string | null = null;
+
+    // Check if this is a custom domain
+    const [customDomainBlog] = await db.query(
+      undefined,
+      "SELECT subdomain FROM blogs WHERE custom_domain = ?",
+      [hostname]
+    );
+
+    if (customDomainBlog) {
+      subdomain = customDomainBlog.subdomain;
+      console.log("Middleware - Custom domain detected:", hostname);
+      console.log("Middleware - Mapping to subdomain:", subdomain);
+    } else {
+      // Check if it's a subdomain
+      const potentialSubdomain = hostname.replace(`.${MAIN_DOMAIN}`, "");
+      if (potentialSubdomain && potentialSubdomain !== "www") {
+        const [subdomainBlog] = await db.query(
+          undefined,
+          "SELECT subdomain FROM blogs WHERE subdomain = ?",
+          [potentialSubdomain]
+        );
+        if (subdomainBlog) {
+          subdomain = potentialSubdomain;
+          console.log("Middleware - Subdomain detected:", subdomain);
+        }
+      }
+    }
+
+    if (subdomain) {
+      // Rewrite to the subdomain path
+      const newUrl = new URL(`/${subdomain}${url.pathname}`, request.url);
+      return NextResponse.rewrite(newUrl);
+    }
+  } catch (error) {
+    console.error("Middleware - Error handling domain:", error);
   }
 
+  // If no matching custom domain or subdomain is found, continue to 404
   return NextResponse.next();
 }
 

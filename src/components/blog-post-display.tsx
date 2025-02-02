@@ -365,11 +365,13 @@ export default function BlogPostDisplay() {
           <CardTitle>Recent Posts</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {filteredPosts
-              .slice(0, 5)
-              .map((post) => renderPostItem(post, post.is_draft))}
-          </div>
+          <ScrollArea className="h-[calc(100vh-400px)] visible">
+            <div className="space-y-4">
+              {filteredPosts
+                .slice(0, 5)
+                .map((post) => renderPostItem(post, post.is_draft))}
+            </div>
+          </ScrollArea>
         </CardContent>
       </Card>
     </div>

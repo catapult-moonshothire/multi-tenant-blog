@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "./providers/auth-context";
 import {
   Card,
   CardContent,
@@ -21,6 +22,7 @@ export default function RegistrationForm() {
   const [blogName, setBlogName] = useState("");
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const { isAuthenticated, login, user, error, logout } = useAuth();
 
   const toggleVisibility = () => setIsVisible((prevState) => !prevState);
 
@@ -63,106 +65,140 @@ export default function RegistrationForm() {
     }
   };
 
+  if (isAuthenticated) {
+    // show the message that you are alreazdy logged in so logut first and then you can register
+    return (
+      <div className="flex h-[calc(100vh-248px)] mt-20 items-center justify-center">
+        <Card className="mt-16 w-96">
+          <CardHeader>
+            <CardTitle>Login</CardTitle>
+            <CardDescription>
+              You are already logged in. Please logout first to register a new
+              user.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await logout();
+              }}
+            >
+              Logout
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <Card className="w-96">
-      <CardHeader>
-        <CardTitle>Register</CardTitle>
-        <CardDescription>
-          Enter your credentials to create new user.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
-          <div className="space-y-1">
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
+    <>
+      {!isAuthenticated && (
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle>Register</CardTitle>
+            <CardDescription>
+              Enter your credentials to create new user.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4 max-w-md mx-auto"
             >
-              Username
-            </label>
-            <Input
-              id="username"
-              type="text"
-              placeholder="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-          <div className="space-y-1">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <Input
-                id="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-                className="pe-9"
-                type={isVisible ? "text" : "password"}
-              />
-              <button
-                className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                type="button"
-                onClick={toggleVisibility}
-                aria-label={isVisible ? "Hide password" : "Show password"}
-                aria-pressed={isVisible}
-                aria-controls="password"
-              >
-                {isVisible ? (
-                  <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
-                ) : (
-                  <Eye size={16} strokeWidth={2} aria-hidden="true" />
-                )}
-              </button>
-            </div>
-          </div>
-          <div className="space-y-1">
-            <label
-              htmlFor="blogSubdomain"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Blog Subdomain
-            </label>
-            <Input
-              id="blogSubdomain"
-              type="text"
-              placeholder="subdomain"
-              value={blogSubdomain}
-              onChange={(e) => setBlogSubdomain(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-          <div className="space-y-1">
-            <label
-              htmlFor="blogName"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Blog Name
-            </label>
-            <Input
-              id="blogName"
-              type="text"
-              placeholder="Blog Name"
-              value={blogName}
-              onChange={(e) => setBlogName(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+              <div className="space-y-1">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Username
+                </label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    placeholder="********"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    className="pe-9"
+                    type={isVisible ? "text" : "password"}
+                  />
+                  <button
+                    className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    type="button"
+                    onClick={toggleVisibility}
+                    aria-label={isVisible ? "Hide password" : "Show password"}
+                    aria-pressed={isVisible}
+                    aria-controls="password"
+                  >
+                    {isVisible ? (
+                      <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
+                    ) : (
+                      <Eye size={16} strokeWidth={2} aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor="blogSubdomain"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Blog Subdomain
+                </label>
+                <Input
+                  id="blogSubdomain"
+                  type="text"
+                  placeholder="subdomain"
+                  value={blogSubdomain}
+                  onChange={(e) => setBlogSubdomain(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor="blogName"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Blog Name
+                </label>
+                <Input
+                  id="blogName"
+                  type="text"
+                  placeholder="Blog Name"
+                  value={blogName}
+                  onChange={(e) => setBlogName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Registering..." : "Register"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+    </>
   );
 }

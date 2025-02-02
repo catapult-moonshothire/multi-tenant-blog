@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["localhost", "abhinavbaldha.com"],
+    domains: ["localhost", "abhinavbaldha.com", "godsofgrowth.com"],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -13,13 +13,12 @@ const nextConfig = {
         os: false,
       };
     }
-    return config;
-  },
-  webpack: (config) => {
+
     config.module.rules.push({
       test: /\.svg$/,
       use: ["@svgr/webpack"],
     });
+
     return config;
   },
   async rewrites() {
