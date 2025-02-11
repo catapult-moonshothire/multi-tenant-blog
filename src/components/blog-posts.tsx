@@ -25,6 +25,12 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogListPage({ subdomain }: BlogPostsProps) {
+  // Fetch the custom domain for the given subdomain
+  const customDomain = await db.getCustomDomain(subdomain);
+
+  console.log("custom domain from blog list page", customDomain);
+
+  // Fetch blog posts
   const blogPosts: BlogPost[] = await db.query(
     subdomain,
     "SELECT * FROM blog_posts WHERE is_draft = 0 ORDER BY created_at DESC"
@@ -45,7 +51,11 @@ export default async function BlogListPage({ subdomain }: BlogPostsProps) {
         <div key={post.id}>
           <h2 className="flex -mt-1 items-center text-lg sm:text-xl">
             <Link
-              href={`/${subdomain}/blog/${post.slug}`}
+              href={
+                customDomain
+                  ? `/blog/${post.slug}` // Clean URL for custom domains
+                  : `/${subdomain}/blog/${post.slug}` // Subdomain URL for subdomains
+              }
               className="mt-0.5 font-semibold"
             >
               {post.title}

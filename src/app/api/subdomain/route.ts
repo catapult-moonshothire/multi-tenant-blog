@@ -4,6 +4,8 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const host = request.headers.get("host");
   const subdomain = host?.split(".")[0];
+  console.log("Subdomain:", subdomain);
+  console.log("Host:", host);
 
   if (subdomain === "localhost" || subdomain === "www") {
     return NextResponse.rewrite(new URL("/", request.url));

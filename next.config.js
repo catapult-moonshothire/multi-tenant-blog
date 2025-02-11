@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["localhost", "abhinavbaldha.com", "godsofgrowth.com"],
+    domains: ["localhost", "xxyy.in"],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -26,15 +26,6 @@ const nextConfig = {
       {
         source: "/:path*",
         destination: "/:path*",
-      },
-    ];
-  },
-  async redirects() {
-    return [
-      {
-        source: "/blog",
-        destination: "/",
-        permanent: true,
       },
     ];
   },

@@ -2,24 +2,24 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex items-center justify-center min-h-screen bg-zinc-100 dark:bg-zinc-900">
       <div className="max-w-xl p-8 text-center">
         <div className="mb-8">
-          <h1 className="text-6xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+          <h1 className="text-6xl font-bold text-zinc-800 dark:text-zinc-200 mb-2">
             404
           </h1>
-          <p className="text-2xl font-light text-gray-600 dark:text-gray-400">
+          <p className="text-2xl font-light text-zinc-600 dark:text-zinc-400">
             Page Not Found
           </p>
         </div>
         <div className="mb-8">
-          <p className="text-gray-700 dark:text-gray-300 mb-4">
+          <p className="text-zinc-700 dark:text-zinc-300 mb-4">
             Oops! The page you're looking for doesn't exist. It might have been
             moved or deleted.
           </p>
           <div className="animate-bounce">
             <svg
-              className="mx-auto h-16 w-16 text-gray-700 dark:text-gray-300"
+              className="mx-auto h-16 w-16 text-zinc-700 dark:text-zinc-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

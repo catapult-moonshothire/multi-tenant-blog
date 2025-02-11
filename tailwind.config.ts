@@ -1,5 +1,5 @@
-import type { Config } from "tailwindcss";
 import typography from "@tailwindcss/typography";
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: ["class"],
@@ -59,6 +59,19 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      animation: {
+        spinner: "spinner 1.2s linear infinite",
+      },
+      keyframes: {
+        spinner: {
+          "0%": {
+            opacity: "1",
+          },
+          "100%": {
+            opacity: "0.15",
+          },
+        },
       },
     },
   },

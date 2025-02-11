@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 80",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
@@ -58,6 +58,7 @@
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.53.1",
     "react-medium-image-zoom": "^5.2.10",
+    "resend": "^4.1.2",
     "sonner": "^1.7.3",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",

@@ -119,4 +119,20 @@ export async function getSubdomainFromCustomDomain(
   }
 }
 
-export default { query, run, getSubdomainFromCustomDomain };
+export async function getCustomDomain(
+  subdomain: string
+): Promise<string | null> {
+  try {
+    const [result] = await query(
+      undefined,
+      "SELECT custom_domain FROM blogs WHERE subdomain = ?",
+      [subdomain]
+    );
+    return result ? result.custom_domain : null;
+  } catch (error) {
+    console.error("Error fetching custom domain:", error);
+    return null;
+  }
+}
+
+export default { query, run, getSubdomainFromCustomDomain, getCustomDomain };

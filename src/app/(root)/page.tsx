@@ -27,8 +27,8 @@ export default async function RootPage() {
   try {
     const [tenantBlog] = await db.query(
       "main",
-      "SELECT * FROM blogs WHERE subdomain = ?",
-      [subdomain]
+      "SELECT * FROM blogs WHERE subdomain = ? OR custom_domain = ?",
+      [subdomain, hostname]
     );
 
     if (!tenantBlog) {
@@ -42,6 +42,8 @@ export default async function RootPage() {
       );
     }
 
+    console.log("custom domain from root  page", tenantBlog.customDomain);
+
     return (
       <>
         <Header />
@@ -51,7 +53,12 @@ export default async function RootPage() {
       </>
     );
   } catch (error) {
-    console.error("RootPage - Error fetching tenant blog:", error);
+    console.error(
+      "RootPage - Error fetching tenant blog:",
+      error,
+      "Hostname:",
+      hostname
+    );
     return (
       <MainContainer>
         <Header />

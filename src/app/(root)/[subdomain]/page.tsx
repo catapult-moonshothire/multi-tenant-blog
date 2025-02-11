@@ -9,6 +9,7 @@ interface PageProps {
 
 export default async function SubdomainPage({ params }: PageProps) {
   const { subdomain } = params;
+  console.log("Subdomain:", subdomain);
 
   if (!subdomain) {
     console.error("Subdomain is undefined");

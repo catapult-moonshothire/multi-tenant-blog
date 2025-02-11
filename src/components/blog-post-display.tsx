@@ -17,6 +17,7 @@ import triggerPurge from "../lib/trigger-purge";
 import BlogPostItem from "./blog-post-item";
 import BlogPostSearch from "./blog-post-search";
 import BlogPostStats from "./blog-post-stats";
+import CustomDomain from "./custom-domain";
 import DeleteConfirmationDialog from "./delete-confirmation";
 import FullScreenEditor from "./fullscreen-editor";
 import { ImportExportData } from "./import-export";
@@ -39,6 +40,7 @@ export default function BlogPostDisplay() {
   });
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
+  const [customDomain, setCustomDomain] = useState<string | null>(null);
   const [stats, setStats] = useState({
     published: 0,
     drafts: 0,
@@ -85,6 +87,26 @@ export default function BlogPostDisplay() {
       setValue("slug", generatedSlug);
     }
   }, [title, setValue]);
+
+  useEffect(() => {
+    if (user?.subdomain) {
+      const fetchCustomDomain = async () => {
+        try {
+          const response = await fetch(
+            `/api/get-custom-domain?subdomain=${user.subdomain}`
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch custom domain");
+          }
+          const data = await response.json();
+          setCustomDomain(data.customDomain);
+        } catch (error) {
+          console.error("Error fetching custom domain:", error);
+        }
+      };
+      fetchCustomDomain();
+    }
+  }, [user]);
 
   const fetchPosts = async () => {
     if (!user?.subdomain) return;
@@ -421,7 +443,10 @@ export default function BlogPostDisplay() {
             <CardHeader>
               <CardTitle>Settings</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="grid lg:grid-cols-2 gap-4">
+              {!customDomain && (
+                <CustomDomain subdomain={user?.subdomain || ""} />
+              )}
               <ImportExportData subdomain={user?.subdomain || ""} />
             </CardContent>
           </Card>
