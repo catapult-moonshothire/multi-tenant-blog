@@ -142,6 +142,7 @@ export default function FullScreenEditor({
                           href={`/blog/${currentPost.slug}`}
                           target="_blank"
                           className="text-blue-500"
+                          prefetch
                         >
                           View Post
                         </Link>

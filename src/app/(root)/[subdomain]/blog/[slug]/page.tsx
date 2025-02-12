@@ -83,7 +83,10 @@ export default async function BlogPostPage({ params }: PageProps) {
             month: "short",
             day: "numeric",
           })}{" "}
-          by <Link href="/">Blog Author</Link>
+          by{" "}
+          <Link href="/" prefetch>
+            Blog Author
+          </Link>
         </header>
         <h1 className="text-4xl font-extrabold">{blogPost.title}</h1>
         <div

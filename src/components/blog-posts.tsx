@@ -56,6 +56,7 @@ export default async function BlogListPage({ subdomain }: BlogPostsProps) {
                   ? `/blog/${post.slug}` // Clean URL for custom domains
                   : `/${subdomain}/blog/${post.slug}` // Subdomain URL for subdomains
               }
+              prefetch
               className="mt-0.5 font-semibold"
             >
               {post.title}

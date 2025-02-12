@@ -494,7 +494,7 @@ export default function BlogPostDisplay() {
             ))}
           </nav>
           <div className="border-t mt-auto mb-6 pt-4 space-y-2">
-            <Link href={`/${user?.subdomain}`}>
+            <Link href={`/${user?.subdomain}`} prefetch>
               <Button className="w-full" variant="secondary">
                 View Blog
               </Button>

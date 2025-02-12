@@ -37,7 +37,11 @@ export default function BlogPostItem({
             {post.title}
           </Button>
           {!isDraft && (
-            <Link target="_blank" href={`${subdomain}/blog/${post.slug}`}>
+            <Link
+              target="_blank"
+              href={`${subdomain}/blog/${post.slug}`}
+              prefetch
+            >
               <LinkIcon size={14} />
             </Link>
           )}
