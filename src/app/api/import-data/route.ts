@@ -4,12 +4,17 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Received request to import data");
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const subdomain = formData.get("subdomain") as string;
     const keepExistingData = formData.get("keepExistingData") === "true";
 
+    console.log("Parsed form data:", { file, subdomain, keepExistingData });
+
     if (!file || !subdomain) {
+      console.error("Error: No file uploaded or subdomain missing");
       return NextResponse.json(
         { error: "No file uploaded or subdomain missing" },
         { status: 400 }
@@ -19,27 +24,32 @@ export async function POST(request: NextRequest) {
     const fileContent = await file.text();
     const data = JSON.parse(fileContent);
 
+    console.log(`Parsed file content, number of posts: ${data.length}`);
+
     let transactionActive = false;
 
     try {
       // Start a transaction
+      console.log(`Starting transaction for subdomain: ${subdomain}`);
       await db.run(subdomain, "BEGIN TRANSACTION");
       transactionActive = true;
 
       if (!keepExistingData) {
         // Clear existing data for the specific subdomain
+        console.log(`Deleting existing blog posts for subdomain: ${subdomain}`);
         await db.run(subdomain, "DELETE FROM blog_posts WHERE subdomain = ?", [
           subdomain,
         ]);
       }
 
       // Insert new data
+      console.log("Inserting new blog posts...");
       for (const post of data) {
+        console.log(`Inserting post with title: ${post.title}`);
         await db.run(
           subdomain,
           `INSERT OR REPLACE INTO blog_posts (title, slug, content, content_preview, is_draft, author, category, meta_title, meta_description, label, author_bio, reading_time, featured_image_url, status, images, created_at, updated_at, subdomain)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-
           [
             post.title,
             post.slug,
@@ -64,13 +74,17 @@ export async function POST(request: NextRequest) {
       }
 
       // Commit the transaction
+      console.log("Committing transaction...");
       await db.run(subdomain, "COMMIT");
       transactionActive = false;
+
       revalidatePath("/admin");
+      console.log("Data imported successfully for subdomain:", subdomain);
       return NextResponse.json({ message: "Data imported successfully" });
     } catch (error) {
       // Rollback the transaction if an error occurs and the transaction is still active
       if (transactionActive) {
+        console.log("Rolling back transaction due to an error...");
         await db.run(subdomain, "ROLLBACK");
       }
       console.error("Database error:", error);

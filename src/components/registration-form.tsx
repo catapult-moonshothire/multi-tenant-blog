@@ -99,7 +99,7 @@ export default function RegistrationForm() {
           <CardHeader>
             <CardTitle>Register</CardTitle>
             <CardDescription>
-              Enter your credentials to create new user.
+              Enter your credentials to create a new user.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -109,15 +109,15 @@ export default function RegistrationForm() {
             >
               <div className="space-y-1">
                 <label
-                  htmlFor="username"
+                  htmlFor="email"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Username
+                  Email Address
                 </label>
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="username"
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email address"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -134,7 +134,7 @@ export default function RegistrationForm() {
                 <div className="relative">
                   <Input
                     id="password"
-                    placeholder="********"
+                    placeholder="Enter a strong password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -168,7 +168,7 @@ export default function RegistrationForm() {
                 <Input
                   id="blogSubdomain"
                   type="text"
-                  placeholder="subdomain"
+                  placeholder="Choose a unique subdomain for your blog"
                   value={blogSubdomain}
                   onChange={(e) => setBlogSubdomain(e.target.value)}
                   required
@@ -185,7 +185,7 @@ export default function RegistrationForm() {
                 <Input
                   id="blogName"
                   type="text"
-                  placeholder="Blog Name"
+                  placeholder="Enter the name of your blog"
                   value={blogName}
                   onChange={(e) => setBlogName(e.target.value)}
                   required

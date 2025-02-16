@@ -26,14 +26,17 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
   const { toast } = useToast();
 
   const handleLoadingState = (action: keyof typeof loading, state: boolean) => {
+    console.log(`Setting loading state for ${action}: ${state}`);
     setLoading((prev) => ({ ...prev, [action]: state }));
   };
 
   const handleExport = async () => {
     if (!subdomain) return;
+    console.log("Exporting data...");
     handleLoadingState("exportData", true);
     setError(null);
     try {
+      console.log(`Sending request to export data for subdomain: ${subdomain}`);
       const response = await fetch(`/api/export-data?subdomain=${subdomain}`);
       if (!response.ok) throw new Error("Export failed");
       const blob = await response.blob();
@@ -47,6 +50,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
       window.URL.revokeObjectURL(url);
       toast({ title: "Success", description: "Data exported successfully" });
     } catch (error) {
+      console.error("Error exporting data:", error);
       setError("Failed to export data");
       toast({
         title: "Error",
@@ -60,13 +64,16 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   const handleImport = async () => {
     if (!file || !subdomain) return;
+    console.log("Importing data...");
     handleLoadingState("importData", true);
     setError(null);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("subdomain", subdomain);
     formData.append("keepExistingData", keepExistingData.toString());
+
     try {
+      console.log(`Sending request to import data for subdomain: ${subdomain}`);
       const response = await fetch("/api/import-data", {
         method: "POST",
         body: formData,
@@ -76,6 +83,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
       setFile(null);
       setDataFileKey(Date.now().toString()); // Force re-render of FileUpload
     } catch (error) {
+      console.error("Error importing data:", error);
       setError("Failed to import data");
       toast({
         title: "Error",
@@ -89,9 +97,13 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   const handleExportImage = async () => {
     if (!subdomain) return;
+    console.log("Exporting images...");
     handleLoadingState("exportImages", true);
     setError(null);
     try {
+      console.log(
+        `Sending request to export images for subdomain: ${subdomain}`
+      );
       const response = await fetch(`/api/export-images?subdomain=${subdomain}`);
       if (!response.ok) throw new Error("Export failed");
 
@@ -106,6 +118,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
       window.URL.revokeObjectURL(url);
       toast({ title: "Success", description: "Images exported successfully" });
     } catch (error) {
+      console.error("Error exporting images:", error);
       setError("Failed to export images");
       toast({
         title: "Error",
@@ -119,12 +132,16 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   const handleImportImages = async () => {
     if (!imageZip || !subdomain) return;
+    console.log("Importing images...");
     handleLoadingState("importImages", true);
     setError(null);
     const formData = new FormData();
     formData.append("file", imageZip);
     formData.append("subdomain", subdomain);
     try {
+      console.log(
+        `Sending request to import images for subdomain: ${subdomain}`
+      );
       const response = await fetch("/api/import-images", {
         method: "POST",
         body: formData,
@@ -134,6 +151,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
       setImageZip(null);
       setImageFileKey(Date.now().toString()); // Force re-render of FileUpload
     } catch (error) {
+      console.error("Error importing images:", error);
       setError("Failed to import images");
       toast({
         title: "Error",
@@ -146,6 +164,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
   };
 
   if (!subdomain) {
+    console.error("Subdomain not provided.");
     return <div>You must be authenticated to access this feature.</div>;
   }
 

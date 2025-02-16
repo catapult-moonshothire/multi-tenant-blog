@@ -99,7 +99,6 @@ export async function run(
     return await db.run(sql, params);
   } catch (error) {
     console.error("Database run error:", error);
-    throw error;
   }
 }
 
