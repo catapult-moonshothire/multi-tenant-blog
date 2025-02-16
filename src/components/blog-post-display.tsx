@@ -21,7 +21,9 @@ import CustomDomain from "./custom-domain";
 import DeleteConfirmationDialog from "./delete-confirmation";
 import FullScreenEditor from "./fullscreen-editor";
 import { ImportExportData } from "./import-export";
+import ProfileSettings from "./profile-settings";
 import { useAuth } from "./providers/auth-context";
+import { IosSpinner } from "./ui/spinner";
 
 export default function BlogPostDisplay() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -50,7 +52,7 @@ export default function BlogPostDisplay() {
 
   useEffect(() => {
     fetchStats();
-  }, []); // Updated dependency array
+  }, [posts]);
 
   const fetchStats = () => {
     const publishedCount = posts.filter((post) => !post.is_draft).length;
@@ -172,10 +174,12 @@ export default function BlogPostDisplay() {
         variant: purgeSuccess ? "default" : "destructive",
       });
 
+      // Reset the form and editor
       setIsEditing(false);
-      reset();
-      setContent("");
-      await fetchPosts();
+      reset(); // Reset the form fields
+      setContent(""); // Clear the editor content
+      setCurrentPost(null); // Clear the current post
+      await fetchPosts(); // Refresh the posts list
     } catch (error) {
       handleError(error, toast);
     } finally {
@@ -224,11 +228,12 @@ export default function BlogPostDisplay() {
         variant: purgeSuccess ? "default" : "destructive",
       });
 
+      // Reset the form and editor
       setIsEditing(false);
-      setCurrentPost(null);
-      reset();
-      setContent("");
-      await fetchPosts();
+      setCurrentPost(null); // Clear the current post
+      reset(); // Reset the form fields
+      setContent(""); // Clear the editor content
+      await fetchPosts(); // Refresh the posts list
     } catch (error) {
       handleError(error, toast);
     } finally {
@@ -388,11 +393,17 @@ export default function BlogPostDisplay() {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-400px)] visible">
-            <div className="space-y-4">
-              {filteredPosts
-                .slice(0, 5)
-                .map((post) => renderPostItem(post, post.is_draft))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <IosSpinner />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredPosts
+                  .slice(0, 5)
+                  .map((post) => renderPostItem(post, post.is_draft))}
+              </div>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
@@ -437,17 +448,25 @@ export default function BlogPostDisplay() {
             </CardContent>
           </Card>
         );
+      // Inside the `renderContent` function in BlogPostDisplay.tsx
       case "settings":
         return (
           <Card className="h-full shadow-none border-none">
             <CardHeader>
               <CardTitle>Settings</CardTitle>
             </CardHeader>
-            <CardContent className="grid lg:grid-cols-2 gap-4">
-              {!customDomain && (
-                <CustomDomain subdomain={user?.subdomain || ""} />
-              )}
-              <ImportExportData subdomain={user?.subdomain || ""} />
+            <CardContent className="grid lg:grid-cols-2 gap-4 lg:gap-8">
+              <div>
+                <ScrollArea className="h-[calc(100vh-240px)]">
+                  <div className="space-y-4 lg:space-y-8 flex flex-col">
+                    {!customDomain && (
+                      <CustomDomain subdomain={user?.subdomain || ""} />
+                    )}
+                    <ImportExportData subdomain={user?.subdomain || ""} />
+                  </div>
+                </ScrollArea>
+              </div>
+              <ProfileSettings />
             </CardContent>
           </Card>
         );

@@ -111,9 +111,9 @@ export default function CustomDomain({ subdomain }: { subdomain: string }) {
   };
 
   return (
-    <Card className="h-full max-w-md p-0 shadow-none relative border-none">
+    <Card className=" max-w-md p-0 shadow-none relative border-none">
       <CardHeader className="px-0">
-        <CardTitle>Domain Settings</CardTitle>
+        <CardTitle className="text-xl font-bold">Domain Settings</CardTitle>
         <CardDescription>
           Manage custom domain for your subdomain: <strong>{subdomain}</strong>
         </CardDescription>

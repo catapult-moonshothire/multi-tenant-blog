@@ -1,17 +1,23 @@
-// auth-context.tsx
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 interface User {
-  username: string;
+  email: string;
   subdomain: string;
+  firstName?: string;
+  lastName?: string;
+  nickname?: string;
+  bio?: string;
+  socialLinks?: string;
+  phoneNumber?: string;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (newUserData: any) => void;
   error: string | null;
 }
 
@@ -39,7 +45,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const data = await response.json();
           setIsAuthenticated(data.authenticated);
           if (data.authenticated) {
-            setUser({ username: data.username, subdomain: data.subdomain });
+            setUser({
+              email: data.email,
+              subdomain: data.subdomain,
+              firstName: data.firstName,
+              lastName: data.lastName,
+              nickname: data.nickname,
+              bio: data.bio,
+              socialLinks: data.socialLinks,
+              phoneNumber: data.phoneNumber,
+            });
           }
         }
       } catch (err) {
@@ -51,20 +66,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const updateUser = (newUserData: any) => {
+    setUser((prev) => ({ ...prev, ...newUserData }));
+  };
+
+  const login = async (email: string, password: string) => {
     setError(null);
     try {
       const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
+      console.log("data", data);
       if (response.ok) {
         setIsAuthenticated(true);
-        setUser({ username: data.username, subdomain: data.subdomain });
+        // Set all user data in context
+        setUser({
+          email: data.email,
+          subdomain: data.subdomain,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          nickname: data.nickname,
+          bio: data.bio,
+          socialLinks: data.socialLinks,
+          phoneNumber: data.phoneNumber,
+        });
       } else {
         setError(data.error || "Invalid credentials");
       }
@@ -94,6 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     login,
     logout,
+    updateUser,
     error,
   };
 

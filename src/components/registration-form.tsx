@@ -1,56 +1,92 @@
 "use client";
 
+import { useAuth } from "@/components/providers/auth-context";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAuth } from "./providers/auth-context";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long" }),
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  bio: z.string().optional(),
+  socialLinks: z.string().optional(),
+  phoneNumber: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number" })
+    .optional(),
+  blogSubdomain: z
+    .string()
+    .min(3, { message: "Blog handle must be at least 3 characters long" })
+    .regex(/^[a-z0-9-]+$/, {
+      message:
+        "Blog handle can only contain lowercase letters, numbers, and hyphens",
+    }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function RegistrationForm() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [blogSubdomain, setBlogSubdomain] = useState("");
-  const [blogName, setBlogName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-  const { isAuthenticated, login, user, error, logout } = useAuth();
-
-  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
-
   const { toast } = useToast();
   const router = useRouter();
+  const { isAuthenticated, logout } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      bio: "",
+      socialLinks: "",
+      phoneNumber: "",
+      blogSubdomain: "",
+    },
+  });
+
+  const onSubmit = async (data: FormValues) => {
     setLoading(true);
     try {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, blogSubdomain, blogName }),
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
         toast({ title: "Success", description: "Registration successful" });
-        setUsername("");
-        setPassword("");
-        setBlogSubdomain("");
-        setBlogName("");
         router.push("/admin");
       } else {
-        const data = await response.json();
+        const errorData = await response.json();
         toast({
           title: "Error",
-          description: data.error,
+          description: errorData.error,
           variant: "destructive",
         });
       }
@@ -66,7 +102,6 @@ export default function RegistrationForm() {
   };
 
   if (isAuthenticated) {
-    // show the message that you are alreazdy logged in so logut first and then you can register
     return (
       <div className="flex h-[calc(100vh-248px)] mt-20 items-center justify-center">
         <Card className="mt-16 w-96">
@@ -93,112 +128,147 @@ export default function RegistrationForm() {
   }
 
   return (
-    <>
-      {!isAuthenticated && (
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Register</CardTitle>
-            <CardDescription>
-              Enter your credentials to create a new user.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4 max-w-md mx-auto"
+    <Card className="w-[640px]">
+      <CardHeader>
+        <CardTitle>Register</CardTitle>
+        <CardDescription>
+          Enter your credentials to create a new user.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="grid md:grid-cols-2 gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your first name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your last name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your phone number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="blogSubdomain"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Blog Handle</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter a handle for your blog"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bio</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your bio" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="socialLinks"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Social Links</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your social links" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter a strong password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              className="w-full col-span-2"
+              disabled={loading}
             >
-              <div className="space-y-1">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email Address
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    placeholder="Enter a strong password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="pe-9"
-                    type={isVisible ? "text" : "password"}
-                  />
-                  <button
-                    className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                    type="button"
-                    onClick={toggleVisibility}
-                    aria-label={isVisible ? "Hide password" : "Show password"}
-                    aria-pressed={isVisible}
-                    aria-controls="password"
-                  >
-                    {isVisible ? (
-                      <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
-                    ) : (
-                      <Eye size={16} strokeWidth={2} aria-hidden="true" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor="blogSubdomain"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Blog Subdomain
-                </label>
-                <Input
-                  id="blogSubdomain"
-                  type="text"
-                  placeholder="Choose a unique subdomain for your blog"
-                  value={blogSubdomain}
-                  onChange={(e) => setBlogSubdomain(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor="blogName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Blog Name
-                </label>
-                <Input
-                  id="blogName"
-                  type="text"
-                  placeholder="Enter the name of your blog"
-                  value={blogName}
-                  onChange={(e) => setBlogName(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Registering..." : "Register"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-    </>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Registering...
+                </>
+              ) : (
+                "Register"
+              )}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

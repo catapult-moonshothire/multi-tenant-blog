@@ -5,6 +5,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { FileUpload } from "./file-upload";
+import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
 
 interface ImportExportDataProps {
   subdomain: string;
@@ -21,6 +23,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
     importImages: false,
   });
   const [error, setError] = useState<string | null>(null);
+  const [showImportExport, setShowImportExport] = useState(false);
   const [dataFileKey, setDataFileKey] = useState(Date.now().toString());
   const [imageFileKey, setImageFileKey] = useState(Date.now().toString());
   const { toast } = useToast();
@@ -170,91 +173,108 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   return (
     <div className="space-y-6 max-w-md">
-      <h2 className="text-2xl font-bold">Import/Export Data</h2>
+      <h2 className="text-xl font-bold">Import/Export Data</h2>
       {error && <p className="text-red-500">{error}</p>}
-      <div className="grid grid-cols-2 gap-4">
-        <Button
-          className="w-full"
-          onClick={handleExport}
-          disabled={
-            loading.exportData ||
-            loading.importData ||
-            loading.exportImages ||
-            loading.importImages
-          }
-        >
-          {loading.exportData ? "Exporting..." : "Export Data"}
-        </Button>
-        <Button
-          className="w-full"
-          onClick={handleExportImage}
-          disabled={
-            loading.exportData ||
-            loading.importData ||
-            loading.exportImages ||
-            loading.importImages
-          }
-        >
-          {loading.exportImages ? "Exporting..." : "Export Images"}
-        </Button>
-      </div>
-      <div className="space-y-4">
-        <FileUpload
-          key={dataFileKey}
-          onFileSelect={setFile}
-          accept=".json"
-          label="JSON file"
-        />
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="keepExistingData"
-            checked={keepExistingData}
-            onCheckedChange={(checked: boolean) =>
-              setKeepExistingData(checked as boolean)
-            }
+      <div className="flex items-center space-x-2">
+        <div className="relative inline-grid h-5 grid-cols-[1fr_1fr] items-center text-sm font-medium">
+          <Switch
+            id="import-export"
+            checked={showImportExport}
+            onCheckedChange={setShowImportExport}
+            className="peer absolute inset-0 h-[inherit] w-auto rounded-lg data-[state=unchecked]:bg-input/50 [&_span]:z-10 [&_span]:h-full [&_span]:w-1/2 [&_span]:rounded-md [&_span]:transition-transform [&_span]:duration-300 [&_span]:[transition-timing-function:cubic-bezier(0.16,1,0.3,1)] data-[state=checked]:[&_span]:translate-x-full rtl:data-[state=checked]:[&_span]:-translate-x-full"
           />
-          <label
-            htmlFor="keepExistingData"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Keep existing data
-          </label>
+
+          <span className="min-w-78 flex pointer-events-none relative ms-0.5 items-center justify-center px-2 text-center transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] peer-data-[state=checked]:invisible peer-data-[state=unchecked]:translate-x-full rtl:peer-data-[state=unchecked]:-translate-x-full" />
         </div>
-        <Button
-          className="w-full"
-          onClick={handleImport}
-          disabled={
-            !file ||
-            loading.exportData ||
-            loading.importData ||
-            loading.exportImages ||
-            loading.importImages
-          }
-        >
-          {loading.importData ? "Importing..." : "Import Data"}
-        </Button>
+        <Label htmlFor="import-export">Import/Export Data</Label>
       </div>
-      <div className="space-y-4">
-        <FileUpload
-          key={imageFileKey}
-          onFileSelect={setImageZip}
-          accept=".zip"
-          label="ZIP file"
-        />
-        <Button
-          className="w-full"
-          onClick={handleImportImages}
-          disabled={
-            !imageZip ||
-            loading.exportData ||
-            loading.importData ||
-            loading.exportImages ||
-            loading.importImages
-          }
-        >
-          {loading.importImages ? "Importing..." : "Import Images"}
-        </Button>
-      </div>
+      {showImportExport && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              className="w-full"
+              onClick={handleExport}
+              disabled={
+                loading.exportData ||
+                loading.importData ||
+                loading.exportImages ||
+                loading.importImages
+              }
+            >
+              {loading.exportData ? "Exporting..." : "Export Data"}
+            </Button>
+            <Button
+              className="w-full"
+              onClick={handleExportImage}
+              disabled={
+                loading.exportData ||
+                loading.importData ||
+                loading.exportImages ||
+                loading.importImages
+              }
+            >
+              {loading.exportImages ? "Exporting..." : "Export Images"}
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <FileUpload
+              key={dataFileKey}
+              onFileSelect={setFile}
+              accept=".json"
+              label="JSON file"
+            />
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="keepExistingData"
+                checked={keepExistingData}
+                onCheckedChange={(checked: boolean) =>
+                  setKeepExistingData(checked as boolean)
+                }
+              />
+              <label
+                htmlFor="keepExistingData"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Keep existing data
+              </label>
+            </div>
+            <Button
+              className="w-full"
+              onClick={handleImport}
+              disabled={
+                !file ||
+                loading.exportData ||
+                loading.importData ||
+                loading.exportImages ||
+                loading.importImages
+              }
+            >
+              {loading.importData ? "Importing..." : "Import Data"}
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <FileUpload
+              key={imageFileKey}
+              onFileSelect={setImageZip}
+              accept=".zip"
+              label="ZIP file"
+            />
+            <Button
+              className="w-full"
+              onClick={handleImportImages}
+              disabled={
+                !imageZip ||
+                loading.exportData ||
+                loading.importData ||
+                loading.exportImages ||
+                loading.importImages
+              }
+            >
+              {loading.importImages ? "Importing..." : "Import Images"}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

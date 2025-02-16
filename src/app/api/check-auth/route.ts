@@ -14,13 +14,24 @@ export async function GET() {
 
   try {
     const decoded = verify(token.value, JWT_SECRET) as {
-      username: string;
+      userId: number;
       subdomain: string;
+      firstName: string;
+      lastName: string;
+      bio: string;
+      socialLinks: string;
+      phoneNumber: string;
     };
+
     return NextResponse.json({
       authenticated: true,
-      username: decoded.username,
+      userId: decoded.userId,
       subdomain: decoded.subdomain,
+      firstName: decoded.firstName,
+      lastName: decoded.lastName,
+      bio: decoded.bio,
+      socialLinks: decoded.socialLinks,
+      phoneNumber: decoded.phoneNumber,
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });

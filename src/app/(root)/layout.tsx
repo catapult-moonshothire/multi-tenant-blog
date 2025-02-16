@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <TooltipProvider>
-      <body className={` antialiased`}>{children}</body>
+      <main className={` antialiased`}>{children}</main>
     </TooltipProvider>
   );
 }

@@ -1,6 +1,8 @@
 import { FileEdit, FileText, LayoutDashboard, Settings } from "lucide-react";
 import { TabType } from "./types";
 
+export const REVALIDATION_TIME = 60 * 60 * 24;
+
 export const navigation = [
   {
     name: "Dashboard",

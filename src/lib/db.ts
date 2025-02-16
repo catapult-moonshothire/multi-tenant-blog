@@ -26,6 +26,7 @@ async function openDb(subdomain?: string) {
     await db.exec(`
       CREATE TABLE IF NOT EXISTS blogs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        blogId TEXT UNIQUE NOT NULL,
         subdomain TEXT UNIQUE NOT NULL,
         name TEXT NOT NULL,
         custom_domain TEXT UNIQUE,
@@ -37,12 +38,17 @@ async function openDb(subdomain?: string) {
 
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
+        blogId TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
+        firstName TEXT NOT NULL,
+        lastName TEXT NOT NULL,
+        bio TEXT,
+        socialLinks TEXT,
+        phoneNumber TEXT,
         subdomain TEXT UNIQUE NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
-      CREATE INDEX IF NOT EXISTS idx_username ON users(username);
     `);
   } else {
     // This is a subdomain-specific database

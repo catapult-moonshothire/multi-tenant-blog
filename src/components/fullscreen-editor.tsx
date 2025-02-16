@@ -68,12 +68,13 @@ export default function FullScreenEditor({
               )}
             </Button>
             <Button
-              variant="destructive"
+              variant="secondary"
               size="icon"
               onClick={onCancel}
               disabled={isSubmitting}
+              className="bg-red-100 hover:bg-red-200"
             >
-              <X className="h-5 w-5 font-bold" />
+              <X className="h-5 w-5  text-red-600 font-bold" />
             </Button>
           </div>
         </header>
