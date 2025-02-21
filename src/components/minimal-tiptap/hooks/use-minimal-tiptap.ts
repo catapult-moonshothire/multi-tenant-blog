@@ -1,3 +1,6 @@
+"use client";
+
+import { useAuth } from "@/components/providers/auth-context";
 import { cn } from "@/lib/utils";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -32,7 +35,7 @@ export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   onBlur?: (content: Content) => void;
 }
 
-const createExtensions = (placeholder: string) => [
+const createExtensions = (placeholder: string, subdomain: string) => [
   StarterKit.configure({
     horizontalRule: false,
     codeBlock: false,
@@ -53,7 +56,9 @@ const createExtensions = (placeholder: string) => [
       try {
         const filename = `${randomId()}-${file.name}`;
         const response = await fetch(
-          `/api/upload-image?filename=${encodeURIComponent(filename)}`,
+          `/api/upload-image?filename=${encodeURIComponent(
+            filename
+          )}&subdomain=${subdomain}`,
           {
             method: "POST",
             body: file,
@@ -114,7 +119,9 @@ const createExtensions = (placeholder: string) => [
         try {
           const filename = `${randomId()}-${file.name}`;
           const response = await fetch(
-            `/api/upload-image?filename=${encodeURIComponent(filename)}`,
+            `/api/upload-image?filename=${encodeURIComponent(
+              filename
+            )}&subdomain=${subdomain}`,
             {
               method: "POST",
               body: file,
@@ -151,7 +158,9 @@ const createExtensions = (placeholder: string) => [
         try {
           const filename = `${randomId()}-${file.name}`;
           const response = await fetch(
-            `/api/upload-image?filename=${encodeURIComponent(filename)}`,
+            `/api/upload-image?filename=${encodeURIComponent(
+              filename
+            )}&subdomain=${subdomain}`,
             {
               method: "POST",
               body: file,
@@ -222,6 +231,8 @@ export const useMinimalTiptapEditor = ({
     (editor: Editor) => throttledSetValue(getOutput(editor, output)),
     [output, throttledSetValue]
   );
+  const { user } = useAuth();
+  const subdomain = user?.subdomain;
 
   const handleCreate = React.useCallback(
     (editor: Editor) => {
@@ -238,7 +249,7 @@ export const useMinimalTiptapEditor = ({
   );
 
   const editor = useEditor({
-    extensions: createExtensions(placeholder),
+    extensions: createExtensions(placeholder, subdomain || ""),
     editorProps: {
       attributes: {
         autocomplete: "off",

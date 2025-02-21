@@ -35,9 +35,13 @@ export interface FullScreenEditorProps {
   onCancel: () => void;
   register: any;
   errors: any;
+  reset: () => void;
+  watch: any;
+  setValue: any;
   control: any;
   isSubmitting: boolean;
   isValid: boolean;
+  subdomain: string;
 }
 
 export // Update the BlogPostTable component to handle loading states
@@ -46,4 +50,13 @@ interface BlogPostTableProps {
   onEdit: (post: BlogPost) => void;
   onDelete: (slug: string) => void;
   isSubmitting: boolean;
+}
+
+export interface User {
+  email: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  socialLinks: string;
+  subdomain?: string;
 }

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileUpload } from "./file-upload";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
@@ -26,7 +26,32 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
   const [showImportExport, setShowImportExport] = useState(false);
   const [dataFileKey, setDataFileKey] = useState(Date.now().toString());
   const [imageFileKey, setImageFileKey] = useState(Date.now().toString());
+  const [hasImages, setHasImages] = useState<boolean | null>(null);
+  const [hasData, setHasData] = useState<boolean | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check resources in one request
+    const checkResources = async () => {
+      if (!subdomain) return;
+
+      try {
+        const response = await fetch(
+          `/api/check-resources?subdomain=${subdomain}`
+        );
+        if (!response.ok) throw new Error("Failed to check resources");
+        const data = await response.json();
+        setHasImages(data.hasImages);
+        setHasData(data.hasData);
+      } catch (error) {
+        console.error("Error checking resources:", error);
+        setHasImages(false);
+        setHasData(false);
+      }
+    };
+
+    checkResources();
+  }, [subdomain]);
 
   const handleLoadingState = (action: keyof typeof loading, state: boolean) => {
     console.log(`Setting loading state for ${action}: ${state}`);
@@ -34,7 +59,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
   };
 
   const handleExport = async () => {
-    if (!subdomain) return;
+    if (!subdomain || !hasData) return;
     console.log("Exporting data...");
     handleLoadingState("exportData", true);
     setError(null);
@@ -99,7 +124,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
   };
 
   const handleExportImage = async () => {
-    if (!subdomain) return;
+    if (!subdomain || !hasImages) return;
     console.log("Exporting images...");
     handleLoadingState("exportImages", true);
     setError(null);
@@ -186,7 +211,9 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
           <span className="min-w-78 flex pointer-events-none relative ms-0.5 items-center justify-center px-2 text-center transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] peer-data-[state=checked]:invisible peer-data-[state=unchecked]:translate-x-full rtl:peer-data-[state=unchecked]:-translate-x-full" />
         </div>
-        <Label htmlFor="import-export">Import/Export Data</Label>
+        <Label htmlFor="import-export" className="cursor-pointer">
+          Import/Export Data
+        </Label>
       </div>
       {showImportExport && (
         <>
@@ -195,6 +222,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
               className="w-full"
               onClick={handleExport}
               disabled={
+                !hasData ||
                 loading.exportData ||
                 loading.importData ||
                 loading.exportImages ||
@@ -207,6 +235,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
               className="w-full"
               onClick={handleExportImage}
               disabled={
+                !hasImages ||
                 loading.exportData ||
                 loading.importData ||
                 loading.exportImages ||
@@ -216,6 +245,16 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
               {loading.exportImages ? "Exporting..." : "Export Images"}
             </Button>
           </div>
+          {hasData === false && (
+            <p className="text-sm text-yellow-600">
+              No data available to export.
+            </p>
+          )}
+          {hasImages === false && (
+            <p className="text-sm text-yellow-600">
+              No images available to export.
+            </p>
+          )}
           <div className="space-y-4">
             <FileUpload
               key={dataFileKey}
@@ -233,7 +272,7 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
               />
               <label
                 htmlFor="keepExistingData"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed cursor-pointer peer-disabled:opacity-70"
               >
                 Keep existing data
               </label>

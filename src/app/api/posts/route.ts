@@ -40,12 +40,23 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { title, slug, content, content_preview, is_draft, ...rest } = body;
+    const {
+      title,
+      slug,
+      content,
+      content_preview,
+      is_draft,
+      published_at,
+      ...rest
+    } = body;
+    const createdAt = new Date().toISOString();
+    const updatedAt = createdAt;
 
     const result = await db.run(
       subdomain,
-      `INSERT INTO blog_posts (title, slug, content, content_preview, is_draft, author, category, meta_title, meta_description, label, author_bio, reading_time, featured_image_url, status, images, subdomain)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO blog_posts (title, slug, content, content_preview, is_draft, author, category, meta_title, meta_description, label, author_bio, reading_time, featured_image_url, status, images, subdomain, created_at, updated_at, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+
       [
         title,
         slug,
@@ -63,10 +74,19 @@ export async function POST(request: NextRequest) {
         rest.status,
         JSON.stringify(rest.images || []),
         subdomain,
+        createdAt,
+        updatedAt,
+        published_at || null,
       ]
     );
     return NextResponse.json(
-      { id: result?.lastID, ...body, subdomain },
+      {
+        id: result?.lastID,
+        ...body,
+        subdomain,
+        created_at: createdAt,
+        updated_at: updatedAt,
+      },
       { status: 201 }
     );
   } catch (error) {

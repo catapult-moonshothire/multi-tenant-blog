@@ -8,8 +8,8 @@ export async function POST(request: Request) {
 
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: "abhinav@moonshothire.com", // Replace with the actual recipient email
+      from: "Abhinav from MoonshotHire <abhinav@moonshothire.com>",
+      to: "abhinav@moonshothire.com",
       subject: "New Domain Request",
       html: `<p>A new domain has been requested:</p>
              <p>Subdomain: ${subdomain}</p>

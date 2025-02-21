@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/providers/auth-context";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 
@@ -39,8 +40,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <TooltipProvider>
-      <main className={` antialiased`}>{children}</main>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <main className={` antialiased`}>{children}</main>
+      </TooltipProvider>
+    </AuthProvider>
   );
 }

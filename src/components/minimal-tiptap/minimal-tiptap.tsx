@@ -1,19 +1,19 @@
 import * as React from "react";
 import "./styles/index.css";
 
-import type { Content, Editor } from "@tiptap/react";
-import type { UseMinimalTiptapEditorProps } from "./hooks/use-minimal-tiptap";
-import { EditorContent } from "@tiptap/react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { SectionOne } from "./components/section/one";
-import { SectionTwo } from "./components/section/two";
-import { SectionThree } from "./components/section/three";
-import { SectionFour } from "./components/section/four";
-import { SectionFive } from "./components/section/five";
+import type { Content, Editor } from "@tiptap/react";
+import { EditorContent } from "@tiptap/react";
 import { LinkBubbleMenu } from "./components/bubble-menu/link-bubble-menu";
-import { useMinimalTiptapEditor } from "./hooks/use-minimal-tiptap";
 import { MeasuredContainer } from "./components/measured-container";
+import { SectionFive } from "./components/section/five";
+import { SectionFour } from "./components/section/four";
+import { SectionOne } from "./components/section/one";
+import { SectionThree } from "./components/section/three";
+import { SectionTwo } from "./components/section/two";
+import type { UseMinimalTiptapEditorProps } from "./hooks/use-minimal-tiptap";
+import { useMinimalTiptapEditor } from "./hooks/use-minimal-tiptap";
 
 export interface MinimalTiptapProps
   extends Omit<UseMinimalTiptapEditorProps, "onUpdate"> {
@@ -24,7 +24,7 @@ export interface MinimalTiptapProps
 }
 
 const Toolbar = ({ editor }: { editor: Editor }) => (
-  <div className="shrink-0 border overflow-x-auto p-2">
+  <div className="shrink-0 sticky -top-4 z-10 bg-white border overflow-x-auto p-2">
     <div className="flex w-max items-center gap-px">
       <SectionOne editor={editor} activeLevels={[1, 2, 3, 4, 5, 6]} />
 
@@ -80,18 +80,25 @@ export const MinimalTiptapEditor = React.forwardRef<
     return null;
   }
 
+  const handleContainerClick = () => {
+    if (editor && !editor.isFocused) {
+      editor.commands.focus();
+    }
+  };
+
   return (
     <MeasuredContainer
       as="div"
       name="editor"
       ref={ref}
-      className={cn("flex min-h-96 w-full flex-col  ", className)}
+      className={cn("flex min-h-[30rem] max-w-3xl w-full flex-col", className)}
+      onClick={handleContainerClick}
     >
       <Toolbar editor={editor} />
       <EditorContent
         editor={editor}
         className={cn(
-          "minimal-tiptap-editor h-full p-2",
+          "minimal-tiptap-editor h-[28rem] p-2",
           editorContentClassName
         )}
       />

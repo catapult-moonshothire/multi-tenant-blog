@@ -50,14 +50,15 @@ export default function BlogPostDisplay() {
   const [searchTerm, setSearchTerm] = useState("");
   const { isAuthenticated, logout, user } = useAuth();
 
-  useEffect(() => {
-    fetchStats();
-  }, [posts]);
-
-  const fetchStats = () => {
-    const publishedCount = posts.filter((post) => !post.is_draft).length;
-    const draftsCount = posts.filter((post) => post.is_draft).length;
-    setStats({ published: publishedCount, drafts: draftsCount });
+  const defaultFormValues = {
+    title: "",
+    slug: "",
+    label: "",
+    author: "",
+    description: "",
+    category: "",
+    meta_title: "",
+    meta_description: "",
   };
 
   const {
@@ -70,7 +71,18 @@ export default function BlogPostDisplay() {
     formState: { errors, isValid },
   } = useForm<BlogPost>({
     mode: "onChange",
+    defaultValues: defaultFormValues,
   });
+
+  useEffect(() => {
+    fetchStats();
+  }, [posts]);
+
+  const fetchStats = () => {
+    const publishedCount = posts.filter((post) => !post.is_draft).length;
+    const draftsCount = posts.filter((post) => post.is_draft).length;
+    setStats({ published: publishedCount, drafts: draftsCount });
+  };
 
   const title = watch("title");
 
@@ -127,6 +139,13 @@ export default function BlogPostDisplay() {
     }
   };
 
+  const resetFormAndEditor = () => {
+    setIsEditing(false);
+    setCurrentPost(null);
+    reset(defaultFormValues); // Reset to explicit default values
+    setContent("");
+  };
+
   const handleAddPost = async (data: BlogPost, isDraft = false) => {
     if (!user || !user.subdomain) {
       toast({
@@ -147,6 +166,8 @@ export default function BlogPostDisplay() {
         body: JSON.stringify({
           ...data,
           content: content,
+          created_at: new Date().toISOString(),
+          ...(isDraft ? {} : { published_at: new Date().toISOString() }),
           content_preview: content?.toString().slice(0, 200),
           is_draft: isDraft,
         }),
@@ -175,10 +196,7 @@ export default function BlogPostDisplay() {
       });
 
       // Reset the form and editor
-      setIsEditing(false);
-      reset(); // Reset the form fields
-      setContent(""); // Clear the editor content
-      setCurrentPost(null); // Clear the current post
+      resetFormAndEditor();
       await fetchPosts(); // Refresh the posts list
     } catch (error) {
       handleError(error, toast);
@@ -203,6 +221,7 @@ export default function BlogPostDisplay() {
           body: JSON.stringify({
             ...updatedData,
             content: content,
+            updated_at: new Date().toISOString(),
             content_preview: content?.toString().slice(0, 200),
             is_draft: isDraft,
           }),
@@ -229,10 +248,7 @@ export default function BlogPostDisplay() {
       });
 
       // Reset the form and editor
-      setIsEditing(false);
-      setCurrentPost(null); // Clear the current post
-      reset(); // Reset the form fields
-      setContent(""); // Clear the editor content
+      resetFormAndEditor();
       await fetchPosts(); // Refresh the posts list
     } catch (error) {
       handleError(error, toast);
@@ -263,6 +279,8 @@ export default function BlogPostDisplay() {
           body: JSON.stringify({
             ...post,
             is_draft: false,
+            published_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           }),
         }
       );
@@ -295,24 +313,20 @@ export default function BlogPostDisplay() {
 
   const openEditorForEdit = (post: BlogPost) => {
     setCurrentPost(post);
-    reset(post);
+    reset(post); // Set form values to post data
     setContent(post.content);
     setIsEditing(true);
   };
 
   const openEditorForAdd = () => {
-    setCurrentPost(null);
-    reset();
-    setContent("");
+    // Explicitly reset all form values to defaults
+    resetFormAndEditor();
     setIsEditing(true);
   };
 
   const handleCancel = () => {
     if (isSubmitting) return;
-    setIsEditing(false);
-    setCurrentPost(null);
-    reset();
-    setContent("");
+    resetFormAndEditor();
   };
 
   const initiateDelete = (slug: string) => {
@@ -399,6 +413,11 @@ export default function BlogPostDisplay() {
               </div>
             ) : (
               <div className="space-y-4">
+                {filteredPosts.length === 0 && !isLoading && (
+                  <div className="text-center text-zinc-500">
+                    No posts found.
+                  </div>
+                )}
                 {filteredPosts
                   .slice(0, 5)
                   .map((post) => renderPostItem(post, post.is_draft))}
@@ -435,6 +454,11 @@ export default function BlogPostDisplay() {
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {filteredPosts.length === 0 && !isLoading && (
+                      <div className="text-center text-zinc-500">
+                        No posts found.
+                      </div>
+                    )}
                     {filteredPosts
                       .filter((post) =>
                         activeTab === "posts" ? !post.is_draft : post.is_draft
@@ -448,7 +472,6 @@ export default function BlogPostDisplay() {
             </CardContent>
           </Card>
         );
-      // Inside the `renderContent` function in BlogPostDisplay.tsx
       case "settings":
         return (
           <Card className="h-full shadow-none border-none">
@@ -580,9 +603,13 @@ export default function BlogPostDisplay() {
               onCancel={handleCancel}
               register={register}
               errors={errors}
+              reset={reset}
+              watch={watch}
+              setValue={setValue}
               control={control}
               isSubmitting={isSubmitting}
               isValid={isValid}
+              subdomain={user?.subdomain || ""}
             />
           ) : (
             renderContent()

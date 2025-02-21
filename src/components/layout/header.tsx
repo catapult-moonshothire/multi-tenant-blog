@@ -1,17 +1,19 @@
+import { GENERAL_BIO } from "@/lib/constants";
+import { User } from "@/lib/types";
 import { NameTransition } from "../name";
 
-// Header component
-const Header = () => (
+interface HeaderProps {
+  userData: User;
+}
+
+const Header = ({ userData }: HeaderProps) => (
   <header className="mb-6 max-w-4xl mx-auto px-4 pt-12 sm:px-8 sm:mb-8 flex justify-between items-center">
     <div>
-      <NameTransition />
+      <NameTransition userData={userData} />
       <div className="flex space-x-4 mt-3 text-sm text-gray-600">
-        <span>Writer</span>
+        <span>{userData?.bio || GENERAL_BIO}</span>
       </div>
     </div>
-    {/* <Link href="https://x.com/" className="no-underline text-2xl">
-      𝕏
-    </Link> */}
   </header>
 );
 

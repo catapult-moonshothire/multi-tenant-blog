@@ -131,7 +131,7 @@ export default function CustomDomain({ subdomain }: { subdomain: string }) {
 
               <span className="min-w-78 flex pointer-events-none relative ms-0.5 items-center justify-center px-2 text-center transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] peer-data-[state=checked]:invisible peer-data-[state=unchecked]:translate-x-full rtl:peer-data-[state=unchecked]:-translate-x-full" />
             </div>
-            <Label htmlFor="custom-domain">
+            <Label className="cursor-pointer" htmlFor="custom-domain">
               Add custom domain if you have it already
             </Label>
           </div>
@@ -182,7 +182,9 @@ export default function CustomDomain({ subdomain }: { subdomain: string }) {
               />
               <span className="min-w-78 flex pointer-events-none relative ms-0.5 items-center justify-center px-2 text-center transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] peer-data-[state=checked]:invisible peer-data-[state=unchecked]:translate-x-full rtl:peer-data-[state=unchecked]:-translate-x-full"></span>
             </div>
-            <Label htmlFor="new-domain">Request new domain</Label>
+            <Label className="cursor-pointer" htmlFor="new-domain">
+              Request new domain
+            </Label>
           </div>
           {showNewDomain && (
             <Form {...newDomainForm}>

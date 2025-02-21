@@ -25,3 +25,6 @@ export const navigation = [
     id: "settings" as TabType,
   },
 ];
+
+export const HEADER_TITLE = "Abhinav Baldha";
+export const GENERAL_BIO = "Blogger";

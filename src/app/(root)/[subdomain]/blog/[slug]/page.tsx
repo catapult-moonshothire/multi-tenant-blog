@@ -1,5 +1,6 @@
 import MainContainer from "@/components/layout/main-container";
 import db from "@/lib/db";
+import { capitalizeFirstLetter } from "@/lib/helper";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,6 +15,8 @@ interface BlogPost {
   is_draft: number;
   meta_title: string;
   meta_description: string;
+  featured_image_url: string; // Add this field if it exists in your schema
+  author: string; // Add this field if it exists in your schema
 }
 
 interface PageProps {
@@ -45,10 +48,40 @@ export async function generateMetadata({
     };
   }
 
-  return {
-    title: blogPost?.meta_title || blogPost.title,
-    description: blogPost?.meta_description,
+  const metadata: Metadata = {
+    title: blogPost.meta_title || blogPost.title,
+    description: blogPost.meta_description || blogPost.content_preview,
+    openGraph: {
+      title: blogPost.meta_title || blogPost.title,
+      description: blogPost.meta_description || blogPost.content_preview,
+      type: "article",
+      publishedTime: blogPost.created_at,
+      authors: [blogPost.author || "Unknown Author"],
+      images: [
+        {
+          url: blogPost.featured_image_url || "/default-image.jpg", // Add a default image if no featured image is available
+          width: 1200,
+          height: 630,
+          alt: blogPost.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blogPost.meta_title || blogPost.title,
+      description: blogPost.meta_description || blogPost.content_preview,
+      images: [
+        {
+          url: blogPost.featured_image_url || "/default-image.jpg", // Add a default image if no featured image is available
+          width: 1200,
+          height: 630,
+          alt: blogPost.title,
+        },
+      ],
+    },
   };
+
+  return metadata;
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
@@ -85,7 +118,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           })}{" "}
           by{" "}
           <Link href="/" prefetch>
-            Blog Author
+            {capitalizeFirstLetter(blogPost.author)}
           </Link>
         </header>
         <h1 className="text-4xl font-extrabold">{blogPost.title}</h1>

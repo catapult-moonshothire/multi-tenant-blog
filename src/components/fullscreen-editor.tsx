@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FullScreenEditorProps } from "@/lib/types";
 import { Loader, X } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import { MinimalTiptapEditor } from "./minimal-tiptap";
 
@@ -26,10 +27,71 @@ export default function FullScreenEditor({
   onSaveDraft,
   register,
   errors,
+  reset,
+  watch,
+  setValue,
   control,
   isSubmitting,
   isValid,
+  subdomain,
 }: FullScreenEditorProps) {
+  const [suggestedMetaTitle, setSuggestedMetaTitle] = useState("");
+  const [suggestedMetaDescription, setSuggestedMetaDescription] = useState("");
+
+  // Clear form values when opening editor for a new post
+  useEffect(() => {
+    if (!currentPost) {
+      // Default values to reset the form to
+      const defaultValues = {
+        title: "",
+        slug: "",
+        label: "",
+        author: "",
+        description: "",
+        category: "",
+        meta_title: "",
+        meta_description: "",
+      };
+
+      reset();
+      setContent(""); // Clear the editor content when creating a new post
+    }
+  }, [currentPost, reset, setContent]);
+
+  // Helper function to strip HTML tags and get plain text
+
+  const stripHtml = (html: string) => {
+    if (!html) return "";
+    // Create a temporary DOM element
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+    // Return the text content only (no HTML)
+    return temp.textContent || temp.innerText || "";
+  };
+
+  useEffect(() => {
+    const title = watch("title");
+    const contentText = stripHtml(content?.toString() || "");
+
+    // Generate suggested meta title
+    if (title) {
+      const suggestedTitle = `${title} | ${subdomain}`; // Customize this as needed
+      setSuggestedMetaTitle(suggestedTitle);
+      // Auto-populate meta title if empty
+
+      setValue("meta_title", suggestedTitle);
+    }
+
+    // Generate suggested meta description
+    if (contentText) {
+      const suggestedDescription = contentText.slice(0, 150).trim(); // Take the first 150 characters
+      setSuggestedMetaDescription(suggestedDescription);
+      // Auto-populate meta description if empty
+
+      setValue("meta_description", suggestedDescription);
+    }
+  }, [watch("title"), content, setValue, watch, subdomain]);
+
   return (
     <div className="fixed inset-0 z-50 bg-background">
       <div className="flex h-full flex-col">
@@ -111,7 +173,7 @@ export default function FullScreenEditor({
               editable={!isSubmitting}
             />
           </div>
-          <div className="sm:w-80 border-l overflow-y-auto">
+          <div className="sm:w-80 lg:w-96 border-l overflow-y-auto">
             <div className="p-4 space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-4">Post Settings</h3>
@@ -140,7 +202,7 @@ export default function FullScreenEditor({
                     {currentPost && (
                       <div className="mt-2 text-sm">
                         <Link
-                          href={`/blog/${currentPost.slug}`}
+                          href={`${subdomain}/blog/${currentPost.slug}`}
                           target="_blank"
                           className="text-blue-500"
                           prefetch
@@ -155,7 +217,6 @@ export default function FullScreenEditor({
                       </p>
                     )}
                   </div>
-
                   <div className="mb-4 sm:flex sm:space-x-4">
                     <div className="mb-4 sm:w-32">
                       <Label htmlFor="slug">Label</Label>
@@ -181,6 +242,7 @@ export default function FullScreenEditor({
                       )}
                     </div>
                   </div>
+
                   <div>
                     <Label htmlFor="description">Description</Label>
                     <Textarea
@@ -215,14 +277,6 @@ export default function FullScreenEditor({
                       )}
                     />
                   </div>
-                  {/* <div>
-                    <Label htmlFor="tags">Tags</Label>
-                    <Input
-                      id="tags"
-                      placeholder="Add tags separated by commas"
-                      {...register("tags")}
-                    />
-                  </div> */}
                 </div>
               </div>
               <div>
@@ -230,19 +284,53 @@ export default function FullScreenEditor({
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="metaTitle">Meta Title</Label>
-                    <Input
-                      id="metaTitle"
-                      placeholder="SEO title"
-                      {...register("meta_title")}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="metaTitle"
+                        placeholder="SEO title"
+                        {...register("meta_title")}
+                      />
+                      {/* <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          setValue("meta_title", suggestedMetaTitle)
+                        }
+                        disabled={!suggestedMetaTitle}
+                      >
+                        Use Suggested
+                      </Button> */}
+                    </div>
+                    {/* {suggestedMetaTitle && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Suggested: {suggestedMetaTitle}
+                      </p>
+                    )} */}
                   </div>
                   <div>
                     <Label htmlFor="metaDescription">Meta Description</Label>
-                    <Textarea
-                      id="metaDescription"
-                      placeholder="SEO description"
-                      {...register("meta_description")}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Textarea
+                        id="metaDescription"
+                        placeholder="SEO description"
+                        {...register("meta_description")}
+                      />
+                      {/* <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          setValue("meta_description", suggestedMetaDescription)
+                        }
+                        disabled={!suggestedMetaDescription}
+                      >
+                        Use Suggested
+                      </Button> */}
+                    </div>
+                    {/* {suggestedMetaDescription && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Suggested: {suggestedMetaDescription}
+                      </p>
+                    )} */}
                   </div>
                 </div>
               </div>

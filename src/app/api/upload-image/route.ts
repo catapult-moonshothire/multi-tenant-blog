@@ -1,5 +1,4 @@
-// app/ap/upload-image/route.ts
-
+// app/api/upload-image/route.ts
 import { mkdir, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
@@ -7,10 +6,11 @@ import path from "path";
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   let filename = searchParams.get("filename");
+  const subdomain = searchParams.get("subdomain");
 
-  if (!filename) {
+  if (!filename || !subdomain) {
     return NextResponse.json(
-      { error: "Filename is required" },
+      { error: "Filename and subdomain are required" },
       { status: 400 }
     );
   }
@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
   const file = await request.blob();
 
   try {
-    // Ensure the images directory exists
-    const imagesDir = path.join(process.cwd(), "public", "images");
+    // Define the subdomain-specific image directory
+    const imagesDir = path.join(process.cwd(), "public", "images", subdomain);
     await mkdir(imagesDir, { recursive: true });
 
     // Save the file
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Return the direct URL to the image
-    const imageUrl = `/images/${filename}`;
+    const imageUrl = `/images/${subdomain}/${filename}`;
 
     return NextResponse.json({
       url: imageUrl,

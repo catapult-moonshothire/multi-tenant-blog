@@ -72,10 +72,33 @@ async function openDb(subdomain?: string) {
         images TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT,
+        published_at TEXT,
         subdomain TEXT NOT NULL,
         UNIQUE(slug, subdomain)
       );
     `);
+
+    // Check if the `published_at` column exists, and add it if it doesn't
+    const columnInfo = await db.all("PRAGMA table_info(blog_posts);");
+
+    const hasPublishedAtColumn = columnInfo.some(
+      (column) => column.name === "published_at"
+    );
+
+    if (!hasPublishedAtColumn) {
+      await db.exec(`
+    ALTER TABLE blog_posts ADD COLUMN published_at TEXT;
+  `);
+      console.log(
+        `Added 'published_at' column to 'blog_posts' table in ${dbPath}`
+      );
+
+      // Set default value for existing rows
+      await db.exec(`
+    UPDATE blog_posts SET published_at = datetime('now') WHERE published_at IS NULL;
+  `);
+      console.log(`Set default value for 'published_at' column in ${dbPath}`);
+    }
   }
 
   return db;
