@@ -3,9 +3,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Abhinav Baldha - Product and Strategy Expert",
+  title: "Inscribe.so – Your Words, Your Legacy",
   description:
-    "Explore insights on Product Analytics, Product Research, Product Marketing, and Product Management from Abhinav Baldha, where intuition meets data and user research.",
+    "Inscribe.so is a minimalist blogging platform for CEOs, founders, and thought leaders to own their content, build their brand, and ensure their ideas live on forever. Write without distractions. Publish on your own domain. Leave a lasting impact.",
   keywords: [
     "Product Strategy",
     "Product Analytics",
@@ -17,11 +17,11 @@ export const metadata: Metadata = {
     "Business Strategy",
   ],
   openGraph: {
-    title: "Abhinav Baldha - Product and Strategy Expert",
+    title: "Inscribe.so – Your Words, Your Legacy",
     description:
-      "Abhinav Baldha's blog on Product Analytics, Research, Marketing, and Management. Learn how to fuse design, data, and technology for business growth.",
+      "Inscribe.so is a minimalist blogging platform for CEOs, founders, and thought leaders to own their content, build their brand, and ensure their ideas live on forever. Write without distractions. Publish on your own domain. Leave a lasting impact.",
     type: "website",
-    // url: "https://abhinavbaldha.com",
+    url: "http://inscribe.so",
     locale: "en_US",
   },
   twitter: {

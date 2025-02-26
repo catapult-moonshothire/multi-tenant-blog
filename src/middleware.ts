@@ -6,7 +6,7 @@ let lastFetchTime = 0;
 
 async function fetchSubdomains() {
   try {
-    const res = await fetch("https://xxyy.in/api/subdomains");
+    const res = await fetch("https://inscribe.so/api/subdomains");
     const data = await res.json();
     if (data.success) {
       domainMappings = data.data;
@@ -37,14 +37,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "xxyy.in";
+  const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "inscribe.so";
 
   // Refresh domain mappings every 10 minutes
   if (Date.now() - lastFetchTime > 10 * 60 * 1000) {
     await fetchSubdomains();
   }
 
-  // Handle main domain with subdomain in path (e.g., xxyy.in/abhinav)
+  // Handle main domain with subdomain in path (e.g., inscribe.so/abhinav)
   if (hostname === MAIN_DOMAIN) {
     const pathParts = url.pathname.split("/");
     const potentialSubdomain = pathParts[1];
@@ -81,7 +81,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Handle subdomain requests (e.g., abhinav.xxyy.in)
+  // Handle subdomain requests (e.g., abhinav.inscribe.so)
   if (hostname.endsWith(`.${MAIN_DOMAIN}`)) {
     const subdomain = hostname.replace(`.${MAIN_DOMAIN}`, "");
     try {

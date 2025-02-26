@@ -1,5 +1,6 @@
 "use client";
 
+import Header from "@/components/landing/header";
 import LoginForm from "@/components/login-form";
 import { useAuth } from "@/components/providers/auth-context";
 import { useRouter } from "next/navigation";
@@ -15,5 +16,10 @@ export default function Admin() {
     }
   }, [isAuthenticated, router]);
 
-  return <LoginForm />;
+  return (
+    <>
+      <Header />
+      <LoginForm />;
+    </>
+  );
 }

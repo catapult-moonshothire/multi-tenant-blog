@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     }
 
     // Check if it's a subdomain
-    const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "xxyy.in";
+    const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "inscribe.so";
     const potentialSubdomain = hostname.replace(`.${MAIN_DOMAIN}`, "");
     if (potentialSubdomain && potentialSubdomain !== "www") {
       const [subdomainBlog] = await db.query(

@@ -172,7 +172,7 @@ export default function CustomDomain({ subdomain }: { subdomain: string }) {
           </div>
         </div>
         <div className="space-y-2">
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <div className="relative inline-grid h-5 grid-cols-[1fr_1fr] items-center text-sm font-medium">
               <Switch
                 id="new-domain"
@@ -185,7 +185,7 @@ export default function CustomDomain({ subdomain }: { subdomain: string }) {
             <Label className="cursor-pointer" htmlFor="new-domain">
               Request new domain
             </Label>
-          </div>
+          </div> */}
           {showNewDomain && (
             <Form {...newDomainForm}>
               <form

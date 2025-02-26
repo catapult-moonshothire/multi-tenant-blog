@@ -9,7 +9,7 @@ import { handleError } from "@/lib/helper";
 import type { BlogPost, TabType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import type { Content } from "@tiptap/react";
-import { Loader2, Menu, Plus, RefreshCw } from "lucide-react";
+import { Loader2, Menu, PencilLine, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ import FullScreenEditor from "./fullscreen-editor";
 import { ImportExportData } from "./import-export";
 import ProfileSettings from "./profile-settings";
 import { useAuth } from "./providers/auth-context";
+import { Separator } from "./ui/separator";
 import { IosSpinner } from "./ui/spinner";
 
 export default function BlogPostDisplay() {
@@ -508,8 +509,17 @@ export default function BlogPostDisplay() {
         )}
       >
         <div className="flex h-full flex-col p-4">
+          <Link
+            title="brand-logo"
+            className="relative ps-2 pt-2 flex items-center space-x-2"
+            href="/"
+          >
+            <PencilLine />
+            <span className="font-semibold text-2xl ">Inscribe beta</span>
+          </Link>
+          <Separator />
           <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-xl pl-3 font-bold">Blog Manager</h2>
+            <h2 className="text-xl pl-3 pt-4 font-bold">Blog Manager</h2>
             <Button
               variant="ghost"
               size="icon"

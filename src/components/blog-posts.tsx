@@ -49,7 +49,7 @@ export default async function BlogListPage({ subdomain }: BlogPostsProps) {
     <main className="prose mx-auto flex-1 w-full max-w-4xl relative z-10">
       {blogPosts.map((post) => (
         <div key={post.id}>
-          <h2 className="flex -mt-1 items-center text-lg sm:text-xl">
+          <h2 className="flex -mt-1 !leading-none items-center text-lg sm:text-xl">
             <Link
               href={
                 customDomain

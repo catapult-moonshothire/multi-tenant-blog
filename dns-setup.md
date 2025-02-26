@@ -1,18 +1,18 @@
 # DNS Configuration Guide
 
-## Main Domain (xxyy.in)
+## Main Domain (inscribe.so)
 
 Add these records to your domain registrar:
 
 A Record:
 
-- Host: @ or xxyy.in
+- Host: @ or inscribe.so
 - Points to: Your server IP
 
 CNAME Record:
 
 - Host: www
-- Points to: xxyy.in
+- Points to: inscribe.so
 
 ## Wildcard Subdomain
 

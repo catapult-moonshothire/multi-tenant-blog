@@ -79,3 +79,112 @@ strong {
   width: 100%;
   cursor: text;
 }
+
+@layer utilities {
+  .bg-dashed {
+    background-image: linear-gradient(
+      45deg,
+      hsl(var(--border)) 12.5%,
+      transparent 12.5%,
+      transparent 50%,
+      hsl(var(--border)) 50%,
+      hsl(var(--border)) 62.5%,
+      transparent 62.5%,
+      transparent 100%
+    );
+    background-size: 0.25rem 0.25rem;
+  }
+}
+
+.react-activity-calendar svg {
+  @apply w-full h-auto;
+}
+
+.shiki {
+  counter-reset: step;
+  counter-increment: step 0;
+}
+
+.shiki .line::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 1rem;
+  margin-right: 1.5rem;
+  display: inline-block;
+  text-align: right;
+  color: rgba(115, 138, 148, 0.4);
+}
+
+::selection {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.dashed-line-top {
+  @apply absolute top-8 left-0 h-px w-full border-t border-dashed;
+}
+
+.dashed-line-left {
+  @apply absolute top-0 left-8 h-full w-px border-r border-dashed;
+}
+
+.dashed-line-right {
+  @apply absolute top-0 right-8 h-full w-px border-r border-dashed;
+}
+
+.dashed-line-bottom {
+  @apply absolute bottom-8 left-0 h-px w-full border-t border-dashed;
+}
+
+.faded-line-bottom {
+  @apply -left-6 -right-6 -bottom-1 absolute h-px  border-b border-dashed;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--foreground)) 2rem,
+    hsl(var(--foreground)) calc(100% - 2rem),
+    transparent
+  );
+}
+
+.faded-line-top {
+  @apply -left-6 -right-6 -top-1 absolute h-px  border-t border-dashed;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--foreground)) 2rem,
+    hsl(var(--foreground)) calc(100% - 2rem),
+    transparent
+  );
+}
+
+.faded-line-left {
+  @apply -top-6 -bottom-6 -left-1 absolute w-px  border-l border-dashed;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    hsl(var(--foreground)) 2rem,
+    hsl(var(--foreground)) calc(100% - 2rem),
+    transparent
+  );
+}
+
+.faded-line-right {
+  @apply -top-6 -bottom-6 -right-1 absolute w-px border-r border-dashed;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    hsl(var(--foreground)) 2rem,
+    hsl(var(--foreground)) calc(100% - 2rem),
+    transparent
+  );
+}
+
+.react-activity-calendar {
+  width: auto !important;
+}
+
+.hide-scroll-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

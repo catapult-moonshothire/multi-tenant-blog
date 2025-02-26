@@ -62,7 +62,7 @@ export default function BlogPostItem({
             Published
           </Badge>
         )}
-        {isDraft && (
+        {!!isDraft && (
           <Button variant="outline" size="sm" onClick={onPublish}>
             Publish
           </Button>

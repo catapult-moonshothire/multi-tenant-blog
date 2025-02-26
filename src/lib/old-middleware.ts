@@ -7,7 +7,7 @@
 // // Fetch subdomain mappings from API
 // async function fetchSubdomains() {
 //   try {
-//     const res = await fetch("https://xxyy.in/api/subdomains");
+//     const res = await fetch("https://inscribe.so/api/subdomains");
 //     const data = await res.json();
 //     if (data.success) {
 //       domainMappings = data.data;
@@ -32,7 +32,7 @@
 //     return NextResponse.next();
 //   }
 
-//   const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "xxyy.in";
+//   const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "inscribe.so";
 
 //   // Refresh domain mappings every 10 minutes
 //   if (Date.now() - lastFetchTime > 10 * 60 * 1000) {
@@ -61,7 +61,7 @@
 //     return NextResponse.rewrite(url);
 //   }
 
-//   // Handle subdomains (e.g., dhaval.xxyy.in)
+//   // Handle subdomains (e.g., dhaval.inscribe.so)
 //   if (subdomain) {
 //     console.log(`Middleware - Proxying ${hostname} to subdomain ${subdomain}`);
 
@@ -98,7 +98,7 @@
 // // // Fetch subdomain mappings from API
 // // async function fetchSubdomains() {
 // //   try {
-// //     const res = await fetch("https://xxyy.in/api/subdomains");
+// //     const res = await fetch("https://inscribe.so/api/subdomains");
 // //     const data = await res.json();
 // //     if (data.success) {
 // //       domainMappings = data.data;
@@ -123,7 +123,7 @@
 // //     return NextResponse.next();
 // //   }
 
-// //   const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "xxyy.in";
+// //   const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "inscribe.so";
 
 // //   // Refresh domain mappings every 10 minutes
 // //   if (Date.now() - lastFetchTime > 10 * 60 * 1000) {
@@ -151,7 +151,7 @@
 // //     return NextResponse.rewrite(url);
 // //   }
 
-// //   // Handle subdomains (e.g., dhaval.xxyy.in)
+// //   // Handle subdomains (e.g., dhaval.inscribe.so)
 // //   if (subdomain) {
 // //     console.log(`Middleware - Proxying ${hostname} to subdomain ${subdomain}`);
 
@@ -189,7 +189,7 @@ let lastFetchTime = 0;
 // Fetch subdomain mappings from API
 async function fetchSubdomains() {
   try {
-    const res = await fetch("https://xxyy.in/api/subdomains");
+    const res = await fetch("https://inscribe.so/api/subdomains");
     const data = await res.json();
     if (data.success) {
       domainMappings = data.data;
@@ -214,7 +214,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "xxyy.in";
+  const MAIN_DOMAIN = process.env.MAIN_DOMAIN || "inscribe.so";
 
   // Refresh domain mappings every 10 minutes
   if (Date.now() - lastFetchTime > 10 * 60 * 1000) {
@@ -242,7 +242,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
-  // Handle subdomains (e.g., dhaval.xxyy.in)
+  // Handle subdomains (e.g., dhaval.inscribe.so)
   if (subdomain) {
     console.log(`Middleware - Proxying ${hostname} to subdomain ${subdomain}`);
 

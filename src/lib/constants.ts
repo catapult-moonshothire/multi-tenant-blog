@@ -26,5 +26,7 @@ export const navigation = [
   },
 ];
 
-export const HEADER_TITLE = "Abhinav Baldha";
+export const HEADER_TITLE = "Inscribe.so";
 export const GENERAL_BIO = "Blogger";
+export const MAIN_DOMAIN = "inscribe.so";
+export const BASE_URL = "https://inscribe.so";

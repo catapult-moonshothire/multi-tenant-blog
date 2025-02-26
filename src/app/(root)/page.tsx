@@ -2,6 +2,7 @@ import BlogListPage from "@/components/blog-posts";
 import HomePageContent from "@/components/home-page-content";
 import Header from "@/components/layout/header";
 import MainContainer from "@/components/layout/main-container";
+import { BASE_URL, MAIN_DOMAIN } from "@/lib/constants";
 import db from "@/lib/db";
 import { User } from "@/lib/types";
 import { headers } from "next/headers";
@@ -22,16 +23,12 @@ export default async function RootPage() {
   };
 
   // Handle root domain or default behavior
-  if (
-    hostname === "localhost:3000" ||
-    hostname === process.env.NEXT_PUBLIC_BASE_URL
-  ) {
+  if (hostname === "localhost:3000" || hostname === BASE_URL || MAIN_DOMAIN) {
     return (
       <>
-        <Header userData={userData} />
-        <MainContainer>
+        <main className="min-h-screen bg-muted antialiased w-full mx-auto scroll-smooth font-sans">
           <HomePageContent />
-        </MainContainer>
+        </main>
       </>
     );
   }

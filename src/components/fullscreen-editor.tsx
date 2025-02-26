@@ -100,7 +100,7 @@ export default function FullScreenEditor({
             {currentPost ? "Edit Post" : "New Post"}
           </h2>
           <div className="flex items-center gap-2">
-            {(!currentPost || currentPost.is_draft) && (
+            {(!currentPost || !!currentPost.is_draft) && (
               <Button
                 variant="outline"
                 onClick={onSaveDraft}
@@ -140,8 +140,9 @@ export default function FullScreenEditor({
             </Button>
           </div>
         </header>
-        <form className="flex flex-1 max-sm:flex-col overflow-hidden">
-          <div className="flex-1 max-sm:w-full sm:overflow-auto p-4">
+        {/* <form className="flex flex-1 max-sm:flex-col overflow-hidden"> */}
+        <form className="flex flex-1 max-sm:flex-col ">
+          <div className="flex-1 max-sm:w-full overflow-auto p-4">
             <div className="mb-4">
               <Controller
                 name="title"
@@ -165,8 +166,8 @@ export default function FullScreenEditor({
             <MinimalTiptapEditor
               value={content}
               onChange={setContent}
-              className="sm:min-h-[500px]"
-              editorContentClassName="prose max-w-none"
+              className="min-h-[500px]"
+              editorContentClassName="prose max-w-none h-full"
               output="html"
               placeholder="Start writing your post..."
               autofocus={true}

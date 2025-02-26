@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { Content, Editor } from "@tiptap/react";
 import { EditorContent } from "@tiptap/react";
+import { ScrollArea } from "../ui/scroll-area";
 import { LinkBubbleMenu } from "./components/bubble-menu/link-bubble-menu";
 import { MeasuredContainer } from "./components/measured-container";
 import { SectionFive } from "./components/section/five";
@@ -91,18 +92,23 @@ export const MinimalTiptapEditor = React.forwardRef<
       as="div"
       name="editor"
       ref={ref}
-      className={cn("flex min-h-[30rem] max-w-3xl w-full flex-col", className)}
+      className={cn(
+        "flex hide-scroll-bar h-[38rem] min-h-[34rem] sm:h-[34rem] max-w-3xl w-full flex-col",
+        className
+      )}
       onClick={handleContainerClick}
     >
       <Toolbar editor={editor} />
-      <EditorContent
-        editor={editor}
-        className={cn(
-          "minimal-tiptap-editor h-[28rem] p-2",
-          editorContentClassName
-        )}
-      />
-      <LinkBubbleMenu editor={editor} />
+      <ScrollArea className="h-full">
+        <EditorContent
+          editor={editor}
+          className={cn(
+            "minimal-tiptap-editor min-h-[28rem] p-2",
+            editorContentClassName
+          )}
+        />
+        <LinkBubbleMenu editor={editor} />
+      </ScrollArea>
     </MeasuredContainer>
   );
 });
