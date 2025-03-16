@@ -15,24 +15,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Remove any path information from the filename
+  // Sanitize the filename
   filename = path.basename(filename);
 
   const file = await request.blob();
 
   try {
-    // Define the subdomain-specific image directory
-    const imagesDir = path.join(process.cwd(), "public", "images", subdomain);
-    await mkdir(imagesDir, { recursive: true });
+    // Define the correct uploads directory (outside `public/`)
+    const uploadsDir = path.join(process.cwd(), "uploads", "images", subdomain);
+    await mkdir(uploadsDir, { recursive: true });
 
     // Save the file
-    await writeFile(
-      path.join(imagesDir, filename),
-      Buffer.from(await file.arrayBuffer())
-    );
+    const filePath = path.join(uploadsDir, filename);
+    await writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
-    // Return the direct URL to the image
-    const imageUrl = `/images/${subdomain}/${filename}`;
+    // Return the API URL where the image can be accessed
+    const imageUrl = `/uploads/images/${subdomain}/${filename}`;
 
     return NextResponse.json({
       url: imageUrl,

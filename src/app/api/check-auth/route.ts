@@ -21,6 +21,8 @@ export async function GET() {
       bio: string;
       socialLinks: string;
       phoneNumber: string;
+      location: string;
+      headline: string;
     };
 
     return NextResponse.json({
@@ -32,6 +34,8 @@ export async function GET() {
       bio: decoded.bio,
       socialLinks: decoded.socialLinks,
       phoneNumber: decoded.phoneNumber,
+      location: decoded.location,
+      headline: decoded.headline,
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });

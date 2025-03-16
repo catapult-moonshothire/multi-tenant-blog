@@ -30,6 +30,7 @@ async function openDb(subdomain?: string) {
         subdomain TEXT UNIQUE NOT NULL,
         name TEXT NOT NULL,
         custom_domain TEXT UNIQUE,
+        cloudflare_data TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT
       );
@@ -43,13 +44,30 @@ async function openDb(subdomain?: string) {
         password TEXT NOT NULL,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
-        bio TEXT,
-        socialLinks TEXT,
-        phoneNumber TEXT,
         subdomain TEXT UNIQUE NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Check and add missing columns to the users table
+    const usersColumns = await db.all("PRAGMA table_info(users);");
+    const columnsToAdd = [
+      { name: "headline", type: "TEXT" },
+      { name: "bio", type: "TEXT" },
+      { name: "location", type: "TEXT" },
+      { name: "socialLinks", type: "TEXT" },
+      { name: "phoneNumber", type: "TEXT" },
+    ];
+
+    for (const column of columnsToAdd) {
+      const columnExists = usersColumns.some((col) => col.name === column.name);
+      if (!columnExists) {
+        await db.exec(
+          `ALTER TABLE users ADD COLUMN ${column.name} ${column.type};`
+        );
+        console.log(`Added column '${column.name}' to 'users' table.`);
+      }
+    }
   } else {
     // This is a subdomain-specific database
     await db.exec(`
@@ -78,6 +96,23 @@ async function openDb(subdomain?: string) {
       );
     `);
 
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        subdomain TEXT NOT NULL,
+        UNIQUE(name, subdomain)
+      );
+
+      CREATE TABLE IF NOT EXISTS authors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        subdomain TEXT NOT NULL,
+        is_primary INTEGER DEFAULT 0,
+        UNIQUE(name, subdomain)
+      );
+    `);
+
     // Check if the `published_at` column exists, and add it if it doesn't
     const columnInfo = await db.all("PRAGMA table_info(blog_posts);");
 
@@ -87,16 +122,16 @@ async function openDb(subdomain?: string) {
 
     if (!hasPublishedAtColumn) {
       await db.exec(`
-    ALTER TABLE blog_posts ADD COLUMN published_at TEXT;
-  `);
+        ALTER TABLE blog_posts ADD COLUMN published_at TEXT;
+      `);
       console.log(
         `Added 'published_at' column to 'blog_posts' table in ${dbPath}`
       );
 
       // Set default value for existing rows
       await db.exec(`
-    UPDATE blog_posts SET published_at = datetime('now') WHERE published_at IS NULL;
-  `);
+        UPDATE blog_posts SET published_at = datetime('now') WHERE published_at IS NULL;
+      `);
       console.log(`Set default value for 'published_at' column in ${dbPath}`);
     }
   }

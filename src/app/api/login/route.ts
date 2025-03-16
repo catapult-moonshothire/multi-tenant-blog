@@ -44,6 +44,9 @@ export async function POST(request: Request) {
         bio: user.bio,
         socialLinks: user.socialLinks,
         phoneNumber: user.phoneNumber,
+        headline: user.headline,
+        location: user.location,
+        email: user.email,
       },
       JWT_SECRET,
       {
@@ -70,8 +73,10 @@ export async function POST(request: Request) {
       firstName: user.firstName,
       lastName: user.lastName,
       bio: user.bio,
-      socialLinks: user.socialLinks,
+      socialLinks: (user.socialLinks && JSON.parse(user.socialLinks)) || [],
       phoneNumber: user.phoneNumber,
+      headline: user.headline,
+      location: user.location,
     });
   } catch (error) {
     console.error("Login error:", error);

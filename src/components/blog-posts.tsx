@@ -28,8 +28,6 @@ export default async function BlogListPage({ subdomain }: BlogPostsProps) {
   // Fetch the custom domain for the given subdomain
   const customDomain = await db.getCustomDomain(subdomain);
 
-  console.log("custom domain from blog list page", customDomain);
-
   // Fetch blog posts
   const blogPosts: BlogPost[] = await db.query(
     subdomain,

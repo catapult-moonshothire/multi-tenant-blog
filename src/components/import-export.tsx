@@ -54,17 +54,14 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
   }, [subdomain]);
 
   const handleLoadingState = (action: keyof typeof loading, state: boolean) => {
-    console.log(`Setting loading state for ${action}: ${state}`);
     setLoading((prev) => ({ ...prev, [action]: state }));
   };
 
   const handleExport = async () => {
     if (!subdomain || !hasData) return;
-    console.log("Exporting data...");
     handleLoadingState("exportData", true);
     setError(null);
     try {
-      console.log(`Sending request to export data for subdomain: ${subdomain}`);
       const response = await fetch(`/api/export-data?subdomain=${subdomain}`);
       if (!response.ok) throw new Error("Export failed");
       const blob = await response.blob();
@@ -92,7 +89,6 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   const handleImport = async () => {
     if (!file || !subdomain) return;
-    console.log("Importing data...");
     handleLoadingState("importData", true);
     setError(null);
     const formData = new FormData();
@@ -101,7 +97,6 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
     formData.append("keepExistingData", keepExistingData.toString());
 
     try {
-      console.log(`Sending request to import data for subdomain: ${subdomain}`);
       const response = await fetch("/api/import-data", {
         method: "POST",
         body: formData,
@@ -125,13 +120,9 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   const handleExportImage = async () => {
     if (!subdomain || !hasImages) return;
-    console.log("Exporting images...");
     handleLoadingState("exportImages", true);
     setError(null);
     try {
-      console.log(
-        `Sending request to export images for subdomain: ${subdomain}`
-      );
       const response = await fetch(`/api/export-images?subdomain=${subdomain}`);
       if (!response.ok) throw new Error("Export failed");
 
@@ -160,16 +151,12 @@ export function ImportExportData({ subdomain }: ImportExportDataProps) {
 
   const handleImportImages = async () => {
     if (!imageZip || !subdomain) return;
-    console.log("Importing images...");
     handleLoadingState("importImages", true);
     setError(null);
     const formData = new FormData();
     formData.append("file", imageZip);
     formData.append("subdomain", subdomain);
     try {
-      console.log(
-        `Sending request to import images for subdomain: ${subdomain}`
-      );
       const response = await fetch("/api/import-images", {
         method: "POST",
         body: formData,

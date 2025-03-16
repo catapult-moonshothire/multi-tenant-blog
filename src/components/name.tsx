@@ -20,7 +20,7 @@ export function NameTransition({ userData }: NameTransitionProps) {
   return (
     <Link
       href={userData?.subdomain ? `/${userData.subdomain}` : "/"}
-      className="text-3xl sm:text-4xl pb-2  font-bold transition-element"
+      className="text-[2rem] md:text-[2.5rem] pb-2  font-bold transition-element"
     >
       <span className="sr-only">{`${defaultFirstName} ${defaultLastName}`}</span>
       <span aria-hidden="true" className="block  group relative">

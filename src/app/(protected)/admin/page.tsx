@@ -1,6 +1,7 @@
 "use client";
 
 import BlogPostDisplay from "@/components/blog-post-display";
+import Header from "@/components/landing/header";
 import MainContainer from "@/components/layout/main-container";
 import { useAuth } from "@/components/providers/auth-context";
 import { IosSpinner } from "@/components/ui/spinner";
@@ -13,7 +14,7 @@ const LoginForm = dynamic(() => import("@/components/login-form"), {
   ssr: false,
   loading: () => (
     <div className="flex h-dvh items-center justify-center">
-      <IosSpinner />,
+      <IosSpinner />
     </div>
   ),
 });
@@ -29,7 +30,12 @@ export default function Admin() {
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return <LoginForm />;
+    return (
+      <>
+        <Header hideButton />
+        <LoginForm />;
+      </>
+    );
   }
 
   return (

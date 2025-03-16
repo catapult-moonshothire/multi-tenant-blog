@@ -2,15 +2,32 @@ import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function PUT(request: Request) {
-  const { subdomain, firstName, lastName, bio, socialLinks, phoneNumber } =
-    await request.json();
+  const {
+    subdomain,
+    firstName,
+    lastName,
+    bio,
+    socialLinks,
+    phoneNumber,
+    headline,
+    location,
+  } = await request.json();
 
   try {
     // Update the user's profile in the database
     await db.run(
       undefined,
-      "UPDATE users SET firstName = ?, lastName = ?, bio = ?, socialLinks = ?, phoneNumber = ? WHERE subdomain = ?",
-      [firstName, lastName, bio, socialLinks, phoneNumber, subdomain]
+      "UPDATE users SET firstName = ?, lastName = ?, bio = ?, socialLinks = ?, phoneNumber = ?, headline = ?, location = ? WHERE subdomain = ?",
+      [
+        firstName,
+        lastName,
+        bio,
+        JSON.stringify(socialLinks),
+        phoneNumber,
+        headline,
+        location,
+        subdomain,
+      ]
     );
 
     // Fetch the updated user data

@@ -1,19 +1,19 @@
-import * as React from "react";
-import type { Editor } from "@tiptap/react";
-import type { Level } from "@tiptap/extension-heading";
-import type { FormatAction } from "../../types";
-import type { VariantProps } from "class-variance-authority";
-import type { toggleVariants } from "@/components/ui/toggle";
-import { cn } from "@/lib/utils";
-import { CaretDownIcon, LetterCaseCapitalizeIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ToolbarButton } from "../toolbar-button";
+import type { toggleVariants } from "@/components/ui/toggle";
+import { cn } from "@/lib/utils";
+import { CaretDownIcon } from "@radix-ui/react-icons";
+import type { Level } from "@tiptap/extension-heading";
+import type { Editor } from "@tiptap/react";
+import type { VariantProps } from "class-variance-authority";
+import * as React from "react";
+import type { FormatAction } from "../../types";
 import { ShortcutKey } from "../shortcut-key";
+import { ToolbarButton } from "../toolbar-button";
 
 interface TextStyle
   extends Omit<
@@ -121,6 +121,19 @@ export const SectionOne: React.FC<SectionOneProps> = React.memo(
       [editor, handleStyleChange]
     );
 
+    // Determine the currently selected style
+    const selectedStyle = React.useMemo(() => {
+      if (editor.isActive("paragraph")) {
+        return formatActions.find((action) => !action.level);
+      }
+      for (let level of activeLevels) {
+        if (editor.isActive("heading", { level })) {
+          return formatActions.find((action) => action.level === level);
+        }
+      }
+      return formatActions[0]; // Default to "Normal Text"
+    }, [editor, activeLevels]);
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -129,12 +142,12 @@ export const SectionOne: React.FC<SectionOneProps> = React.memo(
             tooltip="Text styles"
             aria-label="Text styles"
             pressed={editor.isActive("heading")}
-            className="w-12"
+            className="w-40 justify-between" // Adjusted width to fit the text
             disabled={editor.isActive("codeBlock")}
             size={size}
             variant={variant}
           >
-            <LetterCaseCapitalizeIcon className="size-5" />
+            <span>{selectedStyle?.label}</span>
             <CaretDownIcon className="size-5" />
           </ToolbarButton>
         </DropdownMenuTrigger>

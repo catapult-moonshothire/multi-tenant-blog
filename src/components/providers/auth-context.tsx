@@ -10,6 +10,8 @@ interface User {
   bio?: string;
   socialLinks?: string;
   phoneNumber?: string;
+  headline?: string;
+  location?: string;
 }
 
 interface AuthContextType {
@@ -54,6 +56,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               bio: data.bio,
               socialLinks: data.socialLinks,
               phoneNumber: data.phoneNumber,
+              headline: data.headline,
+              location: data.location,
             });
           }
         }
@@ -81,7 +85,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log("data", data);
       if (response.ok) {
         setIsAuthenticated(true);
         // Set all user data in context
@@ -94,6 +97,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           bio: data.bio,
           socialLinks: data.socialLinks,
           phoneNumber: data.phoneNumber,
+          headline: data.headline,
+          location: data.location,
         });
       } else {
         setError(data.error || "Invalid credentials");

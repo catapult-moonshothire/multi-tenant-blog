@@ -78,6 +78,10 @@ const nextConfig = {
         source: "/:path*",
         destination: "/:path*",
       },
+      {
+        source: "/uploads/:path*",
+        destination: "/api/uploads/:path*", // Map requests to a custom API
+      },
     ];
   },
 

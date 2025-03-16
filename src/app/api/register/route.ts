@@ -8,14 +8,15 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   const {
-    email,
-    password,
     firstName,
     lastName,
-    bio,
-    socialLinks,
-    phoneNumber,
     blogSubdomain,
+    email,
+    password,
+    headline,
+    bio,
+    location,
+    socialLinks,
   } = await request.json();
 
   try {
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
       "SELECT * FROM users WHERE email = ?",
       [email]
     );
+
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already exists" },
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
       "SELECT * FROM blogs WHERE subdomain = ?",
       [blogSubdomain]
     );
+
     if (existingBlog) {
       return NextResponse.json(
         { error: "Blog subdomain already exists" },
@@ -61,16 +64,17 @@ export async function POST(request: Request) {
     // Create a new user
     await db.run(
       undefined,
-      "INSERT INTO users (blogId, email, password, firstName, lastName, bio, socialLinks, phoneNumber, subdomain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO users (blogId, email, password, firstName, lastName, headline, bio, location, socialLinks, subdomain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         blogId,
         email,
         hashedPassword,
         firstName,
         lastName,
-        bio,
-        socialLinks,
-        phoneNumber,
+        headline || null,
+        bio || null,
+        location || null,
+        JSON.stringify(socialLinks),
         blogSubdomain,
       ]
     );

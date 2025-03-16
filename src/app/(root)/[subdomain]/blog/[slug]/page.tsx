@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             day: "numeric",
           })}{" "}
           by{" "}
-          <Link href="/" prefetch>
+          <Link href={subdomain ? `/${subdomain}` : "/"} prefetch>
             {capitalizeFirstLetter(blogPost.author)}
           </Link>
         </header>

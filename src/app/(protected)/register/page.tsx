@@ -4,8 +4,8 @@ import RegistrationForm from "@/components/registration-form";
 export default function page() {
   return (
     <>
-      <Header />
-      <div className="flex  justify-center items-center h-[90vh]">
+      <Header hideButton />
+      <div className="flex p-4 justify-center items-center h-[90vh]">
         <RegistrationForm />
       </div>
     </>

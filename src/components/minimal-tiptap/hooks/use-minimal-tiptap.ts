@@ -23,7 +23,7 @@ import {
   UnsetAllMarks,
 } from "../extensions";
 import { useThrottle } from "../hooks/use-throttle";
-import { getOutput, randomId } from "../utils";
+import { getOutput } from "../utils";
 
 export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   value?: Content;
@@ -34,6 +34,66 @@ export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   onUpdate?: (content: Content) => void;
   onBlur?: (content: Content) => void;
 }
+
+// Define the return type to match what TipTap expects
+type UploadResult = { id: string; src: string };
+
+// Map to track files being processed to prevent duplicate uploads
+const uploadCache = new Map<string, Promise<UploadResult>>();
+
+// Helper to create a simple file fingerprint for deduplication
+const getFileFingerprint = (file: File): string => {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+};
+
+// Centralized image upload function with deduplication
+const uploadImage = async (
+  file: File,
+  subdomain: string
+): Promise<UploadResult> => {
+  // Create a fingerprint for this specific file
+  const fileFingerprint = getFileFingerprint(file);
+
+  // Check if this file is already being uploaded
+  if (uploadCache.has(fileFingerprint)) {
+    // We know this will be non-null because we just checked with has()
+    return uploadCache.get(fileFingerprint)!;
+  }
+
+  // Start a new upload and cache the promise
+  const uploadPromise = (async (): Promise<UploadResult> => {
+    try {
+      const filename = `${file.name}`;
+      const response = await fetch(
+        `/api/upload-image?filename=${encodeURIComponent(
+          filename
+        )}&subdomain=${subdomain}`,
+        {
+          method: "POST",
+          body: file,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const data = await response.json();
+      return { id: data.url, src: data.url };
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      // Remove from cache if upload fails
+      uploadCache.delete(fileFingerprint);
+      throw error;
+    }
+  })();
+
+  // Store in cache
+  uploadCache.set(fileFingerprint, uploadPromise);
+
+  // Return the promise
+  return uploadPromise;
+};
 
 const createExtensions = (placeholder: string, subdomain: string) => [
   StarterKit.configure({
@@ -52,30 +112,7 @@ const createExtensions = (placeholder: string, subdomain: string) => [
   Image.configure({
     allowedMimeTypes: ["image/*"],
     maxFileSize: 5 * 1024 * 1024,
-    uploadFn: async (file) => {
-      try {
-        const filename = `${randomId()}-${file.name}`;
-        const response = await fetch(
-          `/api/upload-image?filename=${encodeURIComponent(
-            filename
-          )}&subdomain=${subdomain}`,
-          {
-            method: "POST",
-            body: file,
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to upload image");
-        }
-
-        const data = await response.json();
-        return { id: data.url, src: data.url };
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        throw error;
-      }
-    },
+    uploadFn: (file, editor) => uploadImage(file, subdomain),
     onImageRemoved({ id, src }) {
       console.log("Image removed", { id, src });
       // You can implement image deletion from Vercel Blob here if needed
@@ -117,25 +154,10 @@ const createExtensions = (placeholder: string, subdomain: string) => [
     onDrop: async (editor, files, pos) => {
       for (const file of files) {
         try {
-          const filename = `${randomId()}-${file.name}`;
-          const response = await fetch(
-            `/api/upload-image?filename=${encodeURIComponent(
-              filename
-            )}&subdomain=${subdomain}`,
-            {
-              method: "POST",
-              body: file,
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to upload image");
-          }
-
-          const data = await response.json();
+          const result = await uploadImage(file, subdomain);
           editor.commands.insertContentAt(pos, {
             type: "image",
-            attrs: { src: data.url },
+            attrs: { src: result.src },
           });
         } catch (error) {
           if (error instanceof Error) {
@@ -156,25 +178,10 @@ const createExtensions = (placeholder: string, subdomain: string) => [
     onPaste: async (editor, files) => {
       for (const file of files) {
         try {
-          const filename = `${randomId()}-${file.name}`;
-          const response = await fetch(
-            `/api/upload-image?filename=${encodeURIComponent(
-              filename
-            )}&subdomain=${subdomain}`,
-            {
-              method: "POST",
-              body: file,
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to upload image");
-          }
-
-          const data = await response.json();
+          const result = await uploadImage(file, subdomain);
           editor.commands.insertContent({
             type: "image",
-            attrs: { src: data.url },
+            attrs: { src: result.src },
           });
         } catch (error) {
           if (error instanceof Error) {

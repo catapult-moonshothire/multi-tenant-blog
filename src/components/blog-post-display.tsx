@@ -11,7 +11,8 @@ import { cn } from "@/lib/utils";
 import type { Content } from "@tiptap/react";
 import { Loader2, Menu, PencilLine, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import triggerPurge from "../lib/trigger-purge";
 import BlogPostItem from "./blog-post-item";
@@ -29,7 +30,7 @@ import { IosSpinner } from "./ui/spinner";
 export default function BlogPostDisplay() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  // const [isEditing, setIsEditing] = useState(false);
   const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
   const [content, setContent] = useState<Content>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +50,16 @@ export default function BlogPostDisplay() {
     drafts: 0,
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [authors, setAuthors] = useState<
+    Array<{ name: string; is_primary: boolean }>
+  >([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
   const { isAuthenticated, logout, user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const isEditing = searchParams.get("edit") === "true";
 
   const defaultFormValues = {
     title: "",
@@ -123,6 +133,92 @@ export default function BlogPostDisplay() {
     }
   }, [user]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user?.subdomain) return;
+
+      try {
+        // Fetch categories
+        const categoriesRes = await fetch(
+          `/api/categories?subdomain=${user.subdomain}`
+        );
+        const categoriesData = await categoriesRes.json();
+        setCategories(categoriesData.map((c: any) => c.name));
+
+        // Fetch authors
+        const authorsRes = await fetch(
+          `/api/authors?subdomain=${user.subdomain}`
+        );
+        const authorsData = await authorsRes.json();
+        setAuthors(authorsData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+
+    fetchData();
+  }, [user?.subdomain]);
+
+  // Add new category handler
+  const addNewCategory = useCallback(async () => {
+    if (!newCategory.trim() || !user?.subdomain) return;
+
+    try {
+      const response = await fetch(
+        `/api/categories?subdomain=${user.subdomain}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newCategory.trim() }),
+        }
+      );
+
+      if (response.ok) {
+        const updated = await fetch(
+          `/api/categories?subdomain=${user.subdomain}`
+        );
+        const data = await updated.json();
+        setCategories(data.map((c: any) => c.name));
+        setNewCategory("");
+      }
+    } catch (error) {
+      console.error("Failed to add category:", error);
+    }
+  }, [newCategory, user?.subdomain]);
+
+  // Add new author handler
+  const addNewAuthor = useCallback(
+    async (isPrimary: boolean) => {
+      if (!newAuthor.trim() || !user?.subdomain) return;
+
+      try {
+        const response = await fetch(
+          `/api/authors?subdomain=${user.subdomain}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: newAuthor.trim(),
+              isPrimary,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const updated = await fetch(
+            `/api/authors?subdomain=${user.subdomain}`
+          );
+          const data = await updated.json();
+          setAuthors(data);
+          setNewAuthor("");
+        }
+      } catch (error) {
+        console.error("Failed to add author:", error);
+      }
+    },
+    [newAuthor, user?.subdomain]
+  );
+
   const fetchPosts = async () => {
     if (!user?.subdomain) return;
     setIsLoading(true);
@@ -141,7 +237,7 @@ export default function BlogPostDisplay() {
   };
 
   const resetFormAndEditor = () => {
-    setIsEditing(false);
+    // setIsEditing(false);
     setCurrentPost(null);
     reset(defaultFormValues); // Reset to explicit default values
     setContent("");
@@ -199,6 +295,7 @@ export default function BlogPostDisplay() {
       // Reset the form and editor
       resetFormAndEditor();
       await fetchPosts(); // Refresh the posts list
+      router.back();
     } catch (error) {
       handleError(error, toast);
     } finally {
@@ -251,6 +348,7 @@ export default function BlogPostDisplay() {
       // Reset the form and editor
       resetFormAndEditor();
       await fetchPosts(); // Refresh the posts list
+      router.back();
     } catch (error) {
       handleError(error, toast);
     } finally {
@@ -312,21 +410,25 @@ export default function BlogPostDisplay() {
     }
   };
 
-  const openEditorForEdit = (post: BlogPost) => {
-    setCurrentPost(post);
-    reset(post); // Set form values to post data
-    setContent(post.content);
-    setIsEditing(true);
+  const openEditorForAdd = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("edit", "true");
+    router.push(`?${params.toString()}`, { scroll: false });
+    resetFormAndEditor();
   };
 
-  const openEditorForAdd = () => {
-    // Explicitly reset all form values to defaults
-    resetFormAndEditor();
-    setIsEditing(true);
+  const openEditorForEdit = (post: BlogPost) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("edit", "true");
+    router.push(`?${params.toString()}`, { scroll: false });
+    setCurrentPost(post);
+    reset(post);
+    setContent(post.content);
   };
 
   const handleCancel = () => {
     if (isSubmitting) return;
+    router.back();
     resetFormAndEditor();
   };
 
@@ -369,6 +471,10 @@ export default function BlogPostDisplay() {
       });
 
       await fetchPosts();
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("edit");
+      // Replace current history entry with clean URL
+      router.replace(`?${params.toString()}`, { scroll: false });
     } catch (error) {
       handleError(error, toast);
     } finally {
@@ -404,7 +510,7 @@ export default function BlogPostDisplay() {
       <BlogPostStats published={stats.published} drafts={stats.drafts} />
       <Card className="h-full shadow-none border-none">
         <CardHeader>
-          <CardTitle>Recent Posts</CardTitle>
+          <CardTitle>All Posts</CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[calc(100vh-400px)] visible">
@@ -419,9 +525,9 @@ export default function BlogPostDisplay() {
                     No posts found.
                   </div>
                 )}
-                {filteredPosts
-                  .slice(0, 5)
-                  .map((post) => renderPostItem(post, post.is_draft))}
+                {filteredPosts.map((post) =>
+                  renderPostItem(post, post.is_draft)
+                )}
               </div>
             )}
           </ScrollArea>
@@ -576,29 +682,31 @@ export default function BlogPostDisplay() {
               {navigation.find((item) => item.id === activeTab)?.name}
             </h1>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={fetchPosts}
-              className="flex items-center justify-center"
-              disabled={isLoading || isSubmitting}
-            >
-              <RefreshCw
-                className={cn(
-                  "h-4 w-4",
-                  (isLoading || isSubmitting) && "animate-spin"
-                )}
-              />
-            </Button>
-            <Button
-              variant="default"
-              onClick={openEditorForAdd}
-              disabled={isSubmitting}
-            >
-              <Plus className="mr-2 h-5 w-5" /> New Post
-            </Button>
-          </div>
+          {activeTab !== "settings" && (
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={fetchPosts}
+                className="flex items-center justify-center"
+                disabled={isLoading || isSubmitting}
+              >
+                <RefreshCw
+                  className={cn(
+                    "h-4 w-4",
+                    (isLoading || isSubmitting) && "animate-spin"
+                  )}
+                />
+              </Button>
+              <Button
+                variant="default"
+                onClick={openEditorForAdd}
+                disabled={isSubmitting}
+              >
+                <Plus className="mr-2 h-5 w-5" /> New Post
+              </Button>
+            </div>
+          )}
         </header>
         <main className="flex-1 overflow-auto py-4 sm:p-8">
           {isEditing ? (

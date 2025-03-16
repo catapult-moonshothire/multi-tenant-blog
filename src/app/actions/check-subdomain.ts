@@ -14,7 +14,7 @@ export async function checkSubdomainAvailability(subdomain: string) {
     if (existingBlog) {
       return {
         success: false,
-        message: "The entered handle is already taken. Please try another one.",
+        message: "The entered name is already taken. Please try another one.",
       };
     } else {
       return { success: true, message: "Subdomain is available!" };

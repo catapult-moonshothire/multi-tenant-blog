@@ -93,7 +93,7 @@ export const MinimalTiptapEditor = React.forwardRef<
       name="editor"
       ref={ref}
       className={cn(
-        "flex hide-scroll-bar h-[38rem] min-h-[34rem] sm:h-[34rem] max-w-3xl w-full flex-col",
+        "flex hide-scroll-bar h-[42rem] sm:h-[34rem] max-w-3xl w-full flex-col",
         className
       )}
       onClick={handleContainerClick}

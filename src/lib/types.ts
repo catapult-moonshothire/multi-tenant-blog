@@ -59,4 +59,6 @@ export interface User {
   bio: string;
   socialLinks: string;
   subdomain?: string;
+  headline?: string;
+  location?: string;
 }

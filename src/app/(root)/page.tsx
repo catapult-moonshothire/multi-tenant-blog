@@ -12,8 +12,6 @@ export default async function RootPage() {
   const hostname = headersList.get("host") || "";
   const subdomain = hostname.split(".")[0];
 
-  console.log("headers", hostname);
-
   const userData: User = {
     email: "abhiav@moonshothire.com",
     firstName: "Abhinav",
@@ -51,8 +49,6 @@ export default async function RootPage() {
         </MainContainer>
       );
     }
-
-    console.log("custom domain from root  page", tenantBlog.customDomain);
 
     return (
       <>

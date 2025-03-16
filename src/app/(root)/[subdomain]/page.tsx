@@ -77,7 +77,6 @@ export async function generateMetadata({
 
 export default async function SubdomainPage({ params }: PageProps) {
   const { subdomain } = params;
-  console.log("Subdomain:", subdomain);
 
   if (!subdomain) {
     console.error("Subdomain is undefined");
@@ -94,7 +93,8 @@ export default async function SubdomainPage({ params }: PageProps) {
         users.firstName, 
         users.lastName, 
         users.bio, 
-        users.socialLinks 
+        users.socialLinks,
+        users.headline
       FROM blogs 
       JOIN users ON blogs.blogId = users.blogId 
       WHERE blogs.subdomain = ? OR blogs.custom_domain = ?`,
@@ -108,7 +108,8 @@ export default async function SubdomainPage({ params }: PageProps) {
       return <div>Blog not found for: {subdomain}</div>;
     }
 
-    const { email, firstName, lastName, bio, socialLinks } = blogWithUser;
+    const { email, firstName, lastName, bio, socialLinks, headline } =
+      blogWithUser;
 
     const userData: User = {
       email,
@@ -117,7 +118,10 @@ export default async function SubdomainPage({ params }: PageProps) {
       bio,
       socialLinks,
       subdomain,
+      headline,
     };
+
+    console.log("userdata", userData);
 
     return (
       <>

@@ -29,6 +29,8 @@ const formSchema = z.object({
     .string()
     .regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number" })
     .optional(),
+  headline: z.string().optional(),
+  location: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -43,8 +45,10 @@ export default function ProfileSettings() {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       bio: user?.bio || "",
-      socialLinks: user?.socialLinks || "",
+      socialLinks: JSON.parse(user?.socialLinks || ""),
       phoneNumber: user?.phoneNumber || "",
+      headline: user?.headline || "",
+      location: user?.location || "",
     },
   });
 
@@ -56,6 +60,8 @@ export default function ProfileSettings() {
         bio: user.bio || "",
         socialLinks: user.socialLinks || "",
         phoneNumber: user.phoneNumber || "",
+        headline: user.headline || "",
+        location: user.location || "",
       });
     }
   }, [user, form]);
@@ -144,7 +150,7 @@ export default function ProfileSettings() {
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="socialLinks"
                 render={({ field }) => (
@@ -155,6 +161,32 @@ export default function ProfileSettings() {
                         placeholder="Social Links (comma-separated)"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+              <FormField
+                control={form.control}
+                name="headline"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Headline</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Headline" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Location" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
