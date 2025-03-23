@@ -45,7 +45,22 @@ export default function ProfileSettings() {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       bio: user?.bio || "",
-      socialLinks: JSON.parse(user?.socialLinks || ""),
+      socialLinks: JSON.stringify(
+        user?.socialLinks
+          ? typeof user.socialLinks === "string"
+            ? JSON.parse(user.socialLinks) // Parse if it's a string
+            : user.socialLinks // Use directly if it's already an object
+          : {
+              twitter: "",
+              linkedin: "",
+              instagram: "",
+              tiktok: "",
+              youtube: "",
+              extra: "",
+            },
+        null,
+        2
+      ), // Pretty-print JSON for readability
       phoneNumber: user?.phoneNumber || "",
       headline: user?.headline || "",
       location: user?.location || "",
@@ -54,11 +69,28 @@ export default function ProfileSettings() {
 
   useEffect(() => {
     if (user) {
+      let parsedSocialLinks;
+      try {
+        parsedSocialLinks =
+          user.socialLinks && typeof user.socialLinks === "string"
+            ? JSON.parse(user.socialLinks) // Parse if it's a string
+            : user.socialLinks || {}; // Use directly if it's already an object or default to an empty object
+      } catch (error) {
+        parsedSocialLinks = {
+          twitter: "",
+          linkedin: "",
+          instagram: "",
+          tiktok: "",
+          youtube: "",
+          extra: "",
+        };
+      }
+
       form.reset({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         bio: user.bio || "",
-        socialLinks: user.socialLinks || "",
+        socialLinks: JSON.stringify(parsedSocialLinks, null, 2), // Pretty-print JSON for readability
         phoneNumber: user.phoneNumber || "",
         headline: user.headline || "",
         location: user.location || "",
@@ -150,22 +182,23 @@ export default function ProfileSettings() {
                   </FormItem>
                 )}
               />
-              {/* <FormField
+              <FormField
                 control={form.control}
                 name="socialLinks"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Social Links (comma-separated)</FormLabel>
+                    <FormLabel>Social Links (JSON)</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Social Links (comma-separated)"
+                      <Textarea
+                        placeholder="Social Links (JSON)"
                         {...field}
+                        rows={6} // Increase rows for better readability
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              /> */}
+              />
               <FormField
                 control={form.control}
                 name="headline"

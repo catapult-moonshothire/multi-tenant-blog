@@ -1,5 +1,6 @@
 import { GENERAL_BIO } from "@/lib/constants";
-import { LinkedIn, Mail, X } from "@/lib/icons";
+import { parseSocialLinks } from "@/lib/helper";
+import { LinkedIn, X } from "@/lib/icons";
 import { User } from "@/lib/types";
 import { InstagramLogoIcon } from "@radix-ui/react-icons";
 import { Facebook, Link, Youtube } from "lucide-react";
@@ -12,7 +13,7 @@ interface HeaderProps {
 const Header = ({ userData }: HeaderProps) => {
   // Parse the social links from the string
   const socialLinks = userData?.socialLinks
-    ? JSON.parse(userData.socialLinks)
+    ? parseSocialLinks(userData.socialLinks)
     : {};
 
   // Define a helper function to render social media icons
@@ -22,6 +23,7 @@ const Header = ({ userData }: HeaderProps) => {
     let icon;
     switch (platform) {
       case "twitter":
+      case "x":
         icon = <X className="size-4" />;
         break;
       case "linkedin":
@@ -88,14 +90,14 @@ const Header = ({ userData }: HeaderProps) => {
             {Object.entries(socialLinks).map(([platform, url]) =>
               url ? renderSocialIcon(platform, url as string) : null
             )}
-            {userData?.email && (
+            {/* {userData?.email && (
               <a
                 href={`mailto:${userData.email}`}
                 className="hover:text-gray-900 text-primary/70 transition-colors"
               >
                 <Mail className="size-4" />
               </a>
-            )}
+            )} */}
           </div>
           <div className="mt-2 text-sm text-gray-500">
             {/* {userData?.email && (

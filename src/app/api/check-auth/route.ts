@@ -1,3 +1,5 @@
+// api/check-auth/route.ts
+
 import { verify } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";

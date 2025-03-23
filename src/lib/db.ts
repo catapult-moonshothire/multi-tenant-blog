@@ -51,7 +51,7 @@ async function openDb(subdomain?: string) {
 
     // Check and add missing columns to the users table
     const usersColumns = await db.all("PRAGMA table_info(users);");
-    const columnsToAdd = [
+    const usersColumnsToAdd = [
       { name: "headline", type: "TEXT" },
       { name: "bio", type: "TEXT" },
       { name: "location", type: "TEXT" },
@@ -59,13 +59,31 @@ async function openDb(subdomain?: string) {
       { name: "phoneNumber", type: "TEXT" },
     ];
 
-    for (const column of columnsToAdd) {
+    for (const column of usersColumnsToAdd) {
       const columnExists = usersColumns.some((col) => col.name === column.name);
       if (!columnExists) {
         await db.exec(
           `ALTER TABLE users ADD COLUMN ${column.name} ${column.type};`
         );
         console.log(`Added column '${column.name}' to 'users' table.`);
+      }
+    }
+
+    // Check and add missing columns to the blogs table
+    const blogsColumns = await db.all("PRAGMA table_info(blogs);");
+    const blogsColumnsToAdd = [
+      { name: "cloudflare_data", type: "TEXT" }, // Add cloudflare_data if it doesn't exist
+    ];
+
+    for (const column of blogsColumnsToAdd) {
+      const columnExists = blogsColumns.some((col) => col.name === column.name);
+      if (!columnExists) {
+        await db.exec(
+          `ALTER TABLE blogs ADD COLUMN ${column.name} ${column.type};`
+        );
+        console.log(`Added column '${column.name}' to 'blogs' table.`);
+      } else {
+        console.log(`Column '${column.name}' already exists in 'blogs' table.`);
       }
     }
   } else {

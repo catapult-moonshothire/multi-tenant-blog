@@ -1,3 +1,5 @@
+// api/register/route.ts
+
 import db from "@/lib/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
@@ -20,32 +22,13 @@ export async function POST(request: Request) {
   } = await request.json();
 
   try {
-    // Check if the user already exists
-    const [existingUser] = await db.query(
-      undefined,
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Email already exists" },
-        { status: 400 }
-      );
-    }
-
-    // Check if the subdomain is already taken
-    const [existingBlog] = await db.query(
-      undefined,
-      "SELECT * FROM blogs WHERE subdomain = ?",
-      [blogSubdomain]
-    );
-
-    if (existingBlog) {
-      return NextResponse.json(
-        { error: "Blog subdomain already exists" },
-        { status: 400 }
-      );
+    // Parse socialLinks safely
+    let parsedSocialLinks;
+    try {
+      parsedSocialLinks = socialLinks ? JSON.parse(socialLinks) : {};
+    } catch (error) {
+      // If parsing fails, initialize it as an empty object
+      parsedSocialLinks = {};
     }
 
     // Hash the password
@@ -58,7 +41,7 @@ export async function POST(request: Request) {
     await db.run(
       undefined,
       "INSERT INTO blogs (blogId, subdomain, name) VALUES (?, ?, ?)",
-      [blogId, blogSubdomain, `${firstName}'s Blog`] // Add a default blog name
+      [blogId, blogSubdomain, `${firstName}'s Blog`]
     );
 
     // Create a new user
@@ -74,7 +57,7 @@ export async function POST(request: Request) {
         headline || null,
         bio || null,
         location || null,
-        JSON.stringify(socialLinks),
+        JSON.stringify(parsedSocialLinks), // Store as a valid JSON string
         blogSubdomain,
       ]
     );

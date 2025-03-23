@@ -1,3 +1,5 @@
+// api/login/route.ts
+
 import db from "@/lib/db";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
@@ -17,21 +19,27 @@ export async function POST(request: Request) {
       [email]
     );
 
-    console.log("User from database:", user); // Debugging
-
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
 
     // Compare passwords
     const passwordMatch = await bcrypt.compare(password, user.password);
-    // console.log("Password match:", passwordMatch); // Debugging
 
     if (!passwordMatch) {
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
+    }
+
+    // Parse socialLinks safely
+    let parsedSocialLinks;
+    try {
+      parsedSocialLinks = user.socialLinks ? JSON.parse(user.socialLinks) : {};
+    } catch (error) {
+      // If parsing fails, initialize it as an empty object
+      parsedSocialLinks = {};
     }
 
     // Generate JWT token
@@ -42,7 +50,7 @@ export async function POST(request: Request) {
         firstName: user.firstName,
         lastName: user.lastName,
         bio: user.bio,
-        socialLinks: user.socialLinks,
+        socialLinks: parsedSocialLinks, // Use the safely parsed socialLinks
         phoneNumber: user.phoneNumber,
         headline: user.headline,
         location: user.location,
@@ -63,8 +71,6 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    console.log("Cookie set successfully"); // Debugging
-
     // Return all user data
     return NextResponse.json({
       success: true,
@@ -73,7 +79,7 @@ export async function POST(request: Request) {
       firstName: user.firstName,
       lastName: user.lastName,
       bio: user.bio,
-      socialLinks: (user.socialLinks && JSON.parse(user.socialLinks)) || [],
+      socialLinks: parsedSocialLinks, // Use the safely parsed socialLinks
       phoneNumber: user.phoneNumber,
       headline: user.headline,
       location: user.location,

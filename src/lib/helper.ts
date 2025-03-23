@@ -28,3 +28,19 @@ export const handleError = (error: any, toast: any) => {
 export const capitalizeFirstLetter = (name: string) => {
   return name?.charAt(0)?.toUpperCase() + name?.slice(1)?.toLowerCase();
 };
+
+// Helper function to parse social links
+export function parseSocialLinks(socialLinks: string): Record<string, string> {
+  try {
+    // Try parsing as JSON first
+    return JSON.parse(socialLinks);
+  } catch (error) {
+    // If JSON parsing fails, assume it's a comma-separated string
+    const links: Record<string, string> = {};
+    socialLinks.split(",").forEach((platform) => {
+      const trimmedPlatform = platform.trim().toLowerCase();
+      links[trimmedPlatform] = ""; // Add empty URL or handle as needed
+    });
+    return links;
+  }
+}

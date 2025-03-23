@@ -1,3 +1,5 @@
+// api/update-profile/route.ts
+
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -14,6 +16,15 @@ export async function PUT(request: Request) {
   } = await request.json();
 
   try {
+    // Parse socialLinks safely
+    let parsedSocialLinks;
+    try {
+      parsedSocialLinks = socialLinks ? JSON.parse(socialLinks) : {};
+    } catch (error) {
+      // If parsing fails, initialize it as an empty object
+      parsedSocialLinks = {};
+    }
+
     // Update the user's profile in the database
     await db.run(
       undefined,
@@ -22,7 +33,7 @@ export async function PUT(request: Request) {
         firstName,
         lastName,
         bio,
-        JSON.stringify(socialLinks),
+        JSON.stringify(parsedSocialLinks), // Store as a valid JSON string
         phoneNumber,
         headline,
         location,
