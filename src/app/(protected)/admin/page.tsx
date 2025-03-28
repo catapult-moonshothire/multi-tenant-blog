@@ -20,7 +20,8 @@ const LoginForm = dynamic(() => import("@/components/login-form"), {
 });
 
 export default function Admin() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, login, logout, loading, error } = useAuth();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -28,6 +29,14 @@ export default function Admin() {
       router.replace("/admin");
     }
   }, [isAuthenticated, router]);
+
+  if (loading) {
+    return (
+      <div className="flex h-dvh items-center justify-center">
+        <IosSpinner />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (

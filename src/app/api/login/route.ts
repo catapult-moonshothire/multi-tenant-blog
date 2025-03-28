@@ -33,15 +33,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse socialLinks safely
-    let parsedSocialLinks;
-    try {
-      parsedSocialLinks = user.socialLinks ? JSON.parse(user.socialLinks) : {};
-    } catch (error) {
-      // If parsing fails, initialize it as an empty object
-      parsedSocialLinks = {};
-    }
-
     // Generate JWT token
     const token = sign(
       {
@@ -50,11 +41,16 @@ export async function POST(request: Request) {
         firstName: user.firstName,
         lastName: user.lastName,
         bio: user.bio,
-        socialLinks: parsedSocialLinks, // Use the safely parsed socialLinks
         phoneNumber: user.phoneNumber,
         headline: user.headline,
         location: user.location,
         email: user.email,
+        twitter: user.twitter,
+        linkedin: user.linkedin,
+        instagram: user.instagram,
+        tiktok: user.tiktok,
+        youtube: user.youtube,
+        extraLink: user.extraLink,
       },
       JWT_SECRET,
       {
@@ -79,10 +75,15 @@ export async function POST(request: Request) {
       firstName: user.firstName,
       lastName: user.lastName,
       bio: user.bio,
-      socialLinks: parsedSocialLinks, // Use the safely parsed socialLinks
       phoneNumber: user.phoneNumber,
       headline: user.headline,
       location: user.location,
+      twitter: user.twitter,
+      linkedin: user.linkedin,
+      instagram: user.instagram,
+      tiktok: user.tiktok,
+      youtube: user.youtube,
+      extraLink: user.extraLink,
     });
   } catch (error) {
     console.error("Login error:", error);

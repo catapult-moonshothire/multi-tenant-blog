@@ -57,8 +57,16 @@ export interface User {
   firstName: string;
   lastName: string;
   bio: string;
-  socialLinks: string;
   subdomain?: string;
   headline?: string;
   location?: string;
+}
+
+export interface SocialLinks {
+  twitter?: string;
+  linkedin?: string;
+  instagram?: string;
+  tiktok?: string;
+  youtube?: string;
+  extraLink?: string;
 }

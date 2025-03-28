@@ -3,7 +3,7 @@ import Header from "@/components/layout/header";
 import MainContainer from "@/components/layout/main-container";
 import db from "@/lib/db";
 import { capitalizeFirstLetter } from "@/lib/helper";
-import { User } from "@/lib/types";
+import { SocialLinks, User } from "@/lib/types";
 import { Metadata } from "next";
 
 interface PageProps {
@@ -32,8 +32,7 @@ export async function generateMetadata({
         users.email, 
         users.firstName, 
         users.lastName, 
-        users.bio, 
-        users.socialLinks 
+        users.bio
       FROM blogs 
       JOIN users ON blogs.blogId = users.blogId 
       WHERE blogs.subdomain = ? OR blogs.custom_domain = ?`,
@@ -93,8 +92,13 @@ export default async function SubdomainPage({ params }: PageProps) {
         users.firstName, 
         users.lastName, 
         users.bio, 
-        users.socialLinks,
-        users.headline
+        users.headline,
+        users.twitter,
+        users.linkedin,
+        users.instagram,
+        users.tiktok,
+        users.youtube,
+        users.extraLink
       FROM blogs 
       JOIN users ON blogs.blogId = users.blogId 
       WHERE blogs.subdomain = ? OR blogs.custom_domain = ?`,
@@ -108,20 +112,34 @@ export default async function SubdomainPage({ params }: PageProps) {
       return <div>Blog not found for: {subdomain}</div>;
     }
 
-    const { email, firstName, lastName, bio, socialLinks, headline } =
-      blogWithUser;
-
-    const userData: User = {
+    const {
       email,
       firstName,
       lastName,
       bio,
-      socialLinks,
+      headline,
+      twitter,
+      instagram,
+      linkedin,
+      youtube,
+      tiktok,
+      extraLink,
+    } = blogWithUser;
+
+    const userData: User & SocialLinks = {
+      email,
+      firstName,
+      lastName,
+      bio,
       subdomain,
       headline,
+      twitter,
+      instagram,
+      linkedin,
+      youtube,
+      tiktok,
+      extraLink,
     };
-
-    console.log("userdata", userData);
 
     return (
       <>

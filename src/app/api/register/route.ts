@@ -18,19 +18,15 @@ export async function POST(request: Request) {
     headline,
     bio,
     location,
-    socialLinks,
+    twitter,
+    linkedin,
+    instagram,
+    tiktok,
+    youtube,
+    extraLink,
   } = await request.json();
 
   try {
-    // Parse socialLinks safely
-    let parsedSocialLinks;
-    try {
-      parsedSocialLinks = socialLinks ? JSON.parse(socialLinks) : {};
-    } catch (error) {
-      // If parsing fails, initialize it as an empty object
-      parsedSocialLinks = {};
-    }
-
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -47,7 +43,7 @@ export async function POST(request: Request) {
     // Create a new user
     await db.run(
       undefined,
-      "INSERT INTO users (blogId, email, password, firstName, lastName, headline, bio, location, socialLinks, subdomain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO users (blogId, email, password, firstName, lastName, headline, bio, location, twitter, linkedin, instagram, tiktok, youtube, extraLink, subdomain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         blogId,
         email,
@@ -57,7 +53,12 @@ export async function POST(request: Request) {
         headline || null,
         bio || null,
         location || null,
-        JSON.stringify(parsedSocialLinks), // Store as a valid JSON string
+        twitter || null,
+        linkedin || null,
+        instagram || null,
+        tiktok || null,
+        youtube || null,
+        extraLink || null,
         blogSubdomain,
       ]
     );

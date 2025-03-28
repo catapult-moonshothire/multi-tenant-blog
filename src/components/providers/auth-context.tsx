@@ -1,4 +1,5 @@
 "use client";
+
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 interface User {
@@ -12,6 +13,12 @@ interface User {
   phoneNumber?: string;
   headline?: string;
   location?: string;
+  twitter?: string;
+  linkedin?: string;
+  instagram?: string;
+  tiktok?: string;
+  youtube?: string;
+  extraLink?: string;
 }
 
 interface AuthContextType {
@@ -21,6 +28,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (newUserData: any) => void;
   error: string | null;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -31,6 +39,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const initializationComplete = useRef(false);
@@ -58,13 +67,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               phoneNumber: data.phoneNumber,
               headline: data.headline,
               location: data.location,
+              twitter: data.twitter,
+              linkedin: data.linkedin,
+              instagram: data.instagram,
+              tiktok: data.tiktok,
+              youtube: data.youtube,
+              extraLink: data.extraLink,
             });
           }
         }
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
+        initializationComplete.current = true;
       }
-      initializationComplete.current = true;
     };
 
     checkAuth();
@@ -85,6 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const data = await response.json();
+
       if (response.ok) {
         setIsAuthenticated(true);
         // Set all user data in context
@@ -99,6 +117,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           phoneNumber: data.phoneNumber,
           headline: data.headline,
           location: data.location,
+          twitter: data.twitter,
+          linkedin: data.linkedin,
+          instagram: data.instagram,
+          tiktok: data.tiktok,
+          youtube: data.youtube,
+          extraLink: data.extraLink,
         });
       } else {
         setError(data.error || "Invalid credentials");
@@ -106,10 +130,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (err) {
       setError("An error occurred during login");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
+    setLoading(true);
     try {
       await fetch("/api/logout", {
         method: "POST",
@@ -121,6 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       setError(null);
+      setLoading(false);
     }
   };
 
@@ -131,6 +159,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     updateUser,
     error,
+    loading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -30,3 +30,11 @@ export const HEADER_TITLE = "Inscribe.so";
 export const GENERAL_BIO = "Blogger";
 export const MAIN_DOMAIN = "inscribe.so";
 export const BASE_URL = "https://inscribe.so";
+
+export const SOCIAL_PLATFORMS = [
+  { value: "twitter", label: "Twitter" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "youtube", label: "YouTube" },
+];

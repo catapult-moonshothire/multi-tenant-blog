@@ -1,3 +1,5 @@
+// api/import-data/route.ts
+
 import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";

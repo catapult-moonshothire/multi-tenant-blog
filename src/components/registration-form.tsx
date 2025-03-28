@@ -18,20 +18,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { SOCIAL_PLATFORMS } from "@/lib/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
 // Step 1 Schema
@@ -53,8 +54,8 @@ const step1Schema = z.object({
 // Social Link Schema
 const socialLinkSchema = z
   .object({
-    platform: z.string().optional(),
-    url: z.string().url("Please enter a valid URL").optional(),
+    platform: z.string(),
+    url: z.string(),
   })
   .optional();
 
@@ -62,28 +63,16 @@ const socialLinkSchema = z
 const step2Schema = z.object({
   headline: z.string().max(120, "Headline is required").optional(),
   bio: z.string().max(360).optional(),
-  location: z.string().max(25, "Max 25 characters").optional(),
+  location: z.string().max(100, "Max 100 characters").optional(),
   socialLinks: z
     .array(socialLinkSchema)
     .max(3, "Maximum 3 social links allowed"),
-  extraLink: z
-    .object({
-      url: z.string().url("Please enter a valid URL").optional(),
-    })
-    .optional(),
+  extraLink: z.string().optional(),
 });
 
 // Combined Schema
 const formSchema = step1Schema.merge(step2Schema);
 type FormValues = z.infer<typeof formSchema>;
-
-const SOCIAL_PLATFORMS = [
-  { value: "twitter", label: "Twitter" },
-  { value: "linkedin", label: "LinkedIn" },
-  { value: "instagram", label: "Instagram" },
-  { value: "tiktok", label: "TikTok" },
-  { value: "youtube", label: "YouTube" },
-];
 
 export default function RegistrationForm() {
   const [step, setStep] = useState(1);
@@ -104,8 +93,12 @@ export default function RegistrationForm() {
       headline: "",
       bio: "",
       location: "",
-      socialLinks: [],
-      extraLink: { url: "" },
+      // twitter: "",
+      // linkedin: "",
+      // instagram: "",
+      // tiktok: "",
+      // youtube: "",
+      extraLink: "",
     },
   });
 
@@ -125,7 +118,8 @@ export default function RegistrationForm() {
   const updateUrlPlaceholder = (index: number, platform: string) => {
     const currentLinks = form.getValues("socialLinks");
     const updatedLinks = [...currentLinks];
-    updatedLinks[index] = { ...updatedLinks[index], platform };
+    const currentUrl = updatedLinks[index]?.url || "";
+    updatedLinks[index] = { platform, url: currentUrl };
     form.setValue("socialLinks", updatedLinks);
   };
 
@@ -189,29 +183,19 @@ export default function RegistrationForm() {
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
     try {
-      // Convert the social links array and extra link to the format expected by the API
-      const convertedSocialLinks = {
-        twitter: "",
-        linkedin: "",
-        instagram: "",
-        tiktok: "",
-        youtube: "",
-        extra: data?.extraLink?.url || "",
-      };
-
-      // Populate the social links
-      data.socialLinks.forEach((link) => {
-        if (link?.platform && link?.url) {
-          convertedSocialLinks[
-            link.platform as keyof typeof convertedSocialLinks
-          ] = link.url;
+      // Convert the social links array to individual fields
+      const socialLinks = data.socialLinks.reduce((acc, link) => {
+        if (link?.platform && link.url) {
+          acc[link.platform] = link.url;
         }
-      });
+        return acc;
+      }, {} as Record<string, string>);
 
       // Prepare the final data for submission
       const submissionData = {
         ...data,
-        socialLinks: convertedSocialLinks,
+        ...socialLinks, // Spread the social links into the submission data
+        socialLinks: undefined, // Remove the socialLinks array
       };
 
       const response = await fetch("/api/register", {
@@ -276,14 +260,14 @@ export default function RegistrationForm() {
         <CardDescription>
           {step === 1 ? (
             <span>
-              Basic Information (Mandatory) <br /> Please fill out these fields.
-              Don't worry, you can update them later.
+              Basic Information <br /> Please fill out these fields. Don't
+              worry, you can update them later.
             </span>
           ) : (
             <span>
               {" "}
-              Profile Details (Optional) - These fields are optional, but feel
-              free to complete them. You can also update them later.
+              Profile Details - These fields are optional, but feel free to
+              complete them. You can also update them later.
             </span>
           )}
         </CardDescription>
@@ -391,7 +375,6 @@ export default function RegistrationForm() {
                 />
               </div>
             )}
-
             {step === 2 && (
               <div className="grid grid-cols-1 w-full md:grid-cols-2 gap-4">
                 <FormField
@@ -434,6 +417,7 @@ export default function RegistrationForm() {
                     </FormItem>
                   )}
                 />
+
                 <div className="col-span-2">
                   <div className="mb-2 flex items-center justify-between">
                     <h3 className="text-sm font-medium">
@@ -541,7 +525,7 @@ export default function RegistrationForm() {
                   <div className="mt-4">
                     <FormField
                       control={form.control}
-                      name="extraLink.url"
+                      name="extraLink"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Extra Link</FormLabel>

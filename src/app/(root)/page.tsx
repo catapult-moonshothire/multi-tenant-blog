@@ -1,7 +1,7 @@
 import BlogListPage from "@/components/blog-posts";
-import HomePageContent from "@/components/home-page-content";
 import Header from "@/components/layout/header";
 import MainContainer from "@/components/layout/main-container";
+import HomePage from "@/components/marketing/HomePage";
 import { BASE_URL, MAIN_DOMAIN } from "@/lib/constants";
 import db from "@/lib/db";
 import { User } from "@/lib/types";
@@ -17,15 +17,15 @@ export default async function RootPage() {
     firstName: "Abhinav",
     lastName: "Baldha",
     bio: "Product Manager",
-    socialLinks: "https://www.linkedin.com/in/abhinavbaldha/",
   };
 
   // Handle root domain or default behavior
   if (hostname === "localhost:3000" || hostname === BASE_URL || MAIN_DOMAIN) {
     return (
       <>
-        <main className="min-h-screen bg-muted antialiased w-full mx-auto scroll-smooth font-sans">
-          <HomePageContent />
+        <main className="min-h-screen bg-offwhite text-navy antialiased w-full mx-auto scroll-smooth font-sans">
+          {/* <HomePageContent /> */}
+          <HomePage />
         </main>
       </>
     );

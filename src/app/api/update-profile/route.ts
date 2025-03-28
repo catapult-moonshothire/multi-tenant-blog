@@ -9,34 +9,35 @@ export async function PUT(request: Request) {
     firstName,
     lastName,
     bio,
-    socialLinks,
     phoneNumber,
     headline,
     location,
+    twitter,
+    linkedin,
+    instagram,
+    youtube,
+    tiktok,
+    extraLink,
   } = await request.json();
 
   try {
-    // Parse socialLinks safely
-    let parsedSocialLinks;
-    try {
-      parsedSocialLinks = socialLinks ? JSON.parse(socialLinks) : {};
-    } catch (error) {
-      // If parsing fails, initialize it as an empty object
-      parsedSocialLinks = {};
-    }
-
     // Update the user's profile in the database
     await db.run(
       undefined,
-      "UPDATE users SET firstName = ?, lastName = ?, bio = ?, socialLinks = ?, phoneNumber = ?, headline = ?, location = ? WHERE subdomain = ?",
+      "UPDATE users SET firstName = ?, lastName = ?, bio = ?, phoneNumber = ?, headline = ?, location = ?, twitter = ?, linkedin = ?, instagram = ?, youtube = ?, tiktok = ?, extraLink = ?  WHERE subdomain = ? ",
       [
         firstName,
         lastName,
         bio,
-        JSON.stringify(parsedSocialLinks), // Store as a valid JSON string
         phoneNumber,
         headline,
         location,
+        twitter,
+        linkedin,
+        instagram,
+        youtube,
+        tiktok,
+        extraLink,
         subdomain,
       ]
     );

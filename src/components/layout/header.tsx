@@ -1,22 +1,16 @@
 import { GENERAL_BIO } from "@/lib/constants";
-import { parseSocialLinks } from "@/lib/helper";
 import { LinkedIn, X } from "@/lib/icons";
-import { User } from "@/lib/types";
+import { SocialLinks, User } from "@/lib/types";
 import { InstagramLogoIcon } from "@radix-ui/react-icons";
 import { Facebook, Link, Youtube } from "lucide-react";
 import { NameTransition } from "../name";
 
 interface HeaderProps {
-  userData: User;
+  userData: User & SocialLinks;
 }
 
 const Header = ({ userData }: HeaderProps) => {
-  // Parse the social links from the string
-  const socialLinks = userData?.socialLinks
-    ? parseSocialLinks(userData.socialLinks)
-    : {};
-
-  // Define a helper function to render social media icons
+  // Render social icon for each platform
   const renderSocialIcon = (platform: string, url: string) => {
     if (!url) return null;
 
@@ -72,6 +66,16 @@ const Header = ({ userData }: HeaderProps) => {
     );
   };
 
+  // Create an array of social media platforms with their corresponding URLs
+  const socialLinks = [
+    { platform: "twitter", url: userData.twitter },
+    { platform: "instagram", url: userData.instagram },
+    { platform: "linkedin", url: userData.linkedin },
+    { platform: "youtube", url: userData.youtube },
+    { platform: "tiktok", url: userData.tiktok },
+    { platform: "extraLink", url: userData.extraLink },
+  ];
+
   return (
     <header className="mb-6 max-w-4xl mx-auto px-4 pt-12 sm:px-8 sm:mb-8">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center">
@@ -87,27 +91,10 @@ const Header = ({ userData }: HeaderProps) => {
 
         <div className="flex flex-col items-start md:items-end">
           <div className="flex space-x-2 mt-2">
-            {Object.entries(socialLinks).map(([platform, url]) =>
-              url ? renderSocialIcon(platform, url as string) : null
+            {/* Render only the social media icons with available URLs */}
+            {socialLinks.map(
+              ({ platform, url }) => url && renderSocialIcon(platform, url) // Only render if the URL exists
             )}
-            {/* {userData?.email && (
-              <a
-                href={`mailto:${userData.email}`}
-                className="hover:text-gray-900 text-primary/70 transition-colors"
-              >
-                <Mail className="size-4" />
-              </a>
-            )} */}
-          </div>
-          <div className="mt-2 text-sm text-gray-500">
-            {/* {userData?.email && (
-              <a
-                href={`mailto:${userData.email}`}
-                className="hover:text-gray-900 transition-colors"
-              >
-                {userData.email}
-              </a>
-            )} */}
           </div>
         </div>
       </div>

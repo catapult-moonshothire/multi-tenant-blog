@@ -44,9 +44,27 @@ async function openDb(subdomain?: string) {
         password TEXT NOT NULL,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
+        headline TEXT,
+        bio TEXT,
+        location TEXT,
+        twitter TEXT,
+        linkedin TEXT,
+        instagram TEXT,
+        tiktok TEXT,
+        youtube TEXT,
+        extraLink TEXT,
         subdomain TEXT UNIQUE NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        token TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_token ON password_reset_tokens(token);
     `);
 
     // Check and add missing columns to the users table
@@ -55,7 +73,12 @@ async function openDb(subdomain?: string) {
       { name: "headline", type: "TEXT" },
       { name: "bio", type: "TEXT" },
       { name: "location", type: "TEXT" },
-      { name: "socialLinks", type: "TEXT" },
+      { name: "twitter", type: "TEXT" },
+      { name: "linkedin", type: "TEXT" },
+      { name: "instagram", type: "TEXT" },
+      { name: "tiktok", type: "TEXT" },
+      { name: "youtube", type: "TEXT" },
+      { name: "extraLink", type: "TEXT" },
       { name: "phoneNumber", type: "TEXT" },
     ];
 

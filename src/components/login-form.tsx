@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -114,6 +115,12 @@ const LoginForm = () => {
                   </FormItem>
                 )}
               />
+              <Link
+                href="/forgot-password"
+                className="flex items-center justify-end text-xs"
+              >
+                Forgot Password?
+              </Link>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? (
